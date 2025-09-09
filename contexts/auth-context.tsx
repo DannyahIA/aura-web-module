@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (email && password) {
       const mockUser: User = {
         id: "1",
-        name: "Usuário Demo",
+        name: "Demo User",
         email: email,
         phone: "+55 11 99999-9999",
         avatar: "/diverse-user-avatars.png",
