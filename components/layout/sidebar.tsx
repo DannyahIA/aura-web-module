@@ -29,13 +29,13 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPage }: SidebarPro
 
   const navigationItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/", key: "dashboard" },
-    { icon: Receipt, label: "Transações", href: "/transacoes", key: "transacoes" },
-    { icon: CreditCard, label: "Finanças", href: "/financas", key: "financas" },
-    { icon: Building2, label: "Bancos", href: "/bancos", key: "bancos" },
-    { icon: Calendar, label: "Calendário", href: "/calendario", key: "calendario" },
-    { icon: Home, label: "Automação", href: "/automacao", key: "automacao" },
-    { icon: User, label: "Perfil", href: "/perfil", key: "perfil" },
-    { icon: Settings, label: "Configurações", href: "/configuracoes", key: "configuracoes" },
+    { icon: Receipt, label: "Transactions", href: "/transacoes", key: "transacoes" },
+    { icon: CreditCard, label: "Finance", href: "/financas", key: "financas" },
+    { icon: Building2, label: "Banks", href: "/bancos", key: "bancos" },
+    { icon: Calendar, label: "Calendar", href: "/calendario", key: "calendario" },
+    { icon: Home, label: "Automation", href: "/automacao", key: "automacao" },
+    { icon: User, label: "Profile", href: "/perfil", key: "perfil" },
+    { icon: Settings, label: "Settings", href: "/configuracoes", key: "configuracoes" },
   ]
 
   const isActive = (href: string) => {
@@ -88,7 +88,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPage }: SidebarPro
           </div>
           <Button variant="ghost" size="sm" className="w-full justify-start gap-2" onClick={logout}>
             <LogOut className="h-4 w-4" />
-            Sair
+            Sign Out
           </Button>
         </div>
       </div>

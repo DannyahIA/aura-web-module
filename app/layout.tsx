@@ -21,8 +21,8 @@ const openSans = Open_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "Hub de Automação Pessoal",
-  description: "Sistema completo de automação financeira e residencial",
+  title: "Personal Automation Hub",
+  description: "Complete financial and residential automation system",
   generator: "v0.app",
 }
 
@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className={`${montserrat.variable} ${openSans.variable} antialiased`}>
+    <html lang="en-US" className={`${montserrat.variable} ${openSans.variable} antialiased`}>
       <body className="font-sans">
         <AuthProvider>
           <LayoutProvider>

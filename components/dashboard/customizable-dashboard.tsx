@@ -33,12 +33,12 @@ export interface Widget {
 }
 
 const defaultWidgets: Widget[] = [
-  { id: "quick-stats", type: "quick-stats", title: "Estatísticas Rápidas", size: "large", enabled: true },
-  { id: "upcoming-bills", type: "upcoming-bills", title: "Próximas Contas", size: "medium", enabled: true },
-  { id: "home-automation", type: "home-automation", title: "Controle da Casa", size: "medium", enabled: true },
-  { id: "ai-suggestions", type: "ai-suggestions", title: "Sugestões IA", size: "large", enabled: true },
-  { id: "weather", type: "weather", title: "Clima", size: "small", enabled: false },
-  { id: "calendar", type: "calendar", title: "Calendário", size: "medium", enabled: false },
+  { id: "quick-stats", type: "quick-stats", title: "Quick Statistics", size: "large", enabled: true },
+  { id: "upcoming-bills", type: "upcoming-bills", title: "Upcoming Bills", size: "medium", enabled: true },
+  { id: "home-automation", type: "home-automation", title: "Home Control", size: "medium", enabled: true },
+  { id: "ai-suggestions", type: "ai-suggestions", title: "AI Suggestions", size: "large", enabled: true },
+  { id: "weather", type: "weather", title: "Weather", size: "small", enabled: false },
+  { id: "calendar", type: "calendar", title: "Calendar", size: "medium", enabled: false },
 ]
 
 export function CustomizableDashboard() {
@@ -46,11 +46,11 @@ export function CustomizableDashboard() {
   const [editMode, setEditMode] = useState(false)
   const [showWidgetSelector, setShowWidgetSelector] = useState(false)
 
-  // Configurar as informações da página
+  // Configure page information
   usePageConfig({
     page: "dashboard",
-    title: "Dashboard Customizável",
-    subtitle: "Organize seu workspace do jeito que preferir"
+    title: "Customizable Dashboard",
+    subtitle: "Organize your workspace the way you prefer"
   })
 
   const sensors = useSensors(
@@ -136,17 +136,17 @@ export function CustomizableDashboard() {
               className={editMode ? "bg-cyan-500 hover:bg-cyan-600" : ""}
             >
               <Settings className="h-4 w-4 mr-2" />
-              {editMode ? "Finalizar Edição" : "Editar Layout"}
+              {editMode ? "Finish Editing" : "Edit Layout"}
             </Button>
             {editMode && (
               <>
                 <Button variant="outline" onClick={() => setShowWidgetSelector(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Adicionar Widget
+                  Add Widget
                 </Button>
                 <Button variant="outline" onClick={resetLayout}>
                     <RotateCcw className="h-4 w-4 mr-2" />
-                    Resetar Layout
+                    Reset Layout
                   </Button>
                 </>
               )}

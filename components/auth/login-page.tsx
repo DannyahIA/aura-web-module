@@ -36,10 +36,10 @@ export function LoginPage() {
       }
 
       if (!success) {
-        setError("Credenciais inválidas. Tente novamente.")
+        setError("Invalid credentials. Please try again.")
       }
     } catch (err) {
-      setError("Erro interno. Tente novamente.")
+      setError("Internal error. Please try again.")
     }
   }
 
@@ -55,28 +55,28 @@ export function LoginPage() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-black font-montserrat text-primary">AutoHub</h1>
-          <p className="text-muted-foreground mt-2">Seu hub de automação pessoal</p>
+          <p className="text-muted-foreground mt-2">Your personal automation hub</p>
         </div>
 
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold font-montserrat">{isLogin ? "Entrar" : "Criar Conta"}</CardTitle>
+            <CardTitle className="text-2xl font-bold font-montserrat">{isLogin ? "Sign In" : "Create Account"}</CardTitle>
             <CardDescription>
               {isLogin
-                ? "Entre com suas credenciais para acessar o sistema"
-                : "Crie sua conta para começar a usar o AutoHub"}
+                ? "Enter your credentials to access the system"
+                : "Create your account to start using AutoHub"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo</Label>
+                  <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
                     name="name"
                     type="text"
-                    placeholder="Seu nome completo"
+                    placeholder="Your full name"
                     value={formData.name}
                     onChange={handleInputChange}
                     required={!isLogin}
@@ -90,7 +90,7 @@ export function LoginPage() {
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="seu@email.com"
+                  placeholder="your@email.com"
                   value={formData.email}
                   onChange={handleInputChange}
                   required
@@ -98,13 +98,13 @@ export function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
+                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Sua senha"
+                    placeholder="Your password"
                     value={formData.password}
                     onChange={handleInputChange}
                     required
@@ -131,12 +131,12 @@ export function LoginPage() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isLogin ? "Entrando..." : "Criando conta..."}
+                    {isLogin ? "Signing in..." : "Creating account..."}
                   </>
                 ) : isLogin ? (
-                  "Entrar"
+                  "Sign In"
                 ) : (
-                  "Criar Conta"
+                  "Create Account"
                 )}
               </Button>
             </form>
@@ -151,14 +151,14 @@ export function LoginPage() {
                 }}
                 className="text-sm"
               >
-                {isLogin ? "Não tem uma conta? Criar conta" : "Já tem uma conta? Entrar"}
+                {isLogin ? "Don't have an account? Create account" : "Already have an account? Sign in"}
               </Button>
             </div>
           </CardContent>
         </Card>
 
         <div className="text-center text-sm text-muted-foreground">
-          <p>Para demonstração, use qualquer email e senha</p>
+          <p>For demonstration, use any email and password</p>
         </div>
       </div>
     </div>

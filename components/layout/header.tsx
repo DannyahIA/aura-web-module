@@ -28,7 +28,7 @@ export function Header({ sidebarOpen, setSidebarOpen, title, subtitle }: HeaderP
           <div className="flex items-center gap-2 text-sm">
             <Cloud className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium">22°C</span>
-            <span className="text-muted-foreground">Ensolarado</span>
+            <span className="text-muted-foreground">Sunny</span>
           </div>
           <Button variant="outline" size="sm">
             <Bell className="h-4 w-4" />
