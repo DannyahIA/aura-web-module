@@ -29,13 +29,13 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPage }: SidebarPro
 
   const navigationItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/", key: "dashboard" },
-    { icon: Receipt, label: "Transações", href: "/transacoes", key: "transacoes" },
-    { icon: CreditCard, label: "Finanças", href: "/financas", key: "financas" },
-    { icon: Building2, label: "Bancos", href: "/bancos", key: "bancos" },
-    { icon: Calendar, label: "Calendário", href: "/calendario", key: "calendario" },
-    { icon: Home, label: "Automação", href: "/automacao", key: "automacao" },
-    { icon: User, label: "Perfil", href: "/perfil", key: "perfil" },
-    { icon: Settings, label: "Configurações", href: "/configuracoes", key: "configuracoes" },
+    { icon: Receipt, label: "Transactions", href: "/transactions", key: "transactions" },
+    { icon: CreditCard, label: "Finances", href: "/finances", key: "finances" },
+    { icon: Building2, label: "Banks", href: "/banks", key: "banks" },
+    { icon: Calendar, label: "Calendar", href: "/calendar", key: "calendar" },
+    { icon: Home, label: "Automation", href: "/automation", key: "automation" },
+    { icon: User, label: "Profile", href: "/profile", key: "profile" },
+    { icon: Settings, label: "Settings", href: "/settings", key: "settings" },
   ]
 
   const isActive = (href: string) => {
@@ -50,12 +50,12 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPage }: SidebarPro
       className={`
         fixed top-0 left-0 z-50 h-full w-64 bg-sidebar border-r border-sidebar-border transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0 lg:static lg:z-auto
+        lg:translate-x-0
       `}
     >
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between p-6 border-b border-sidebar-border">
-          <h1 className="text-xl font-black font-montserrat text-sidebar-foreground">AutoHub</h1>
+          <h1 className="text-xl font-black font-montserrat text-sidebar-foreground">AuraHub</h1>
           <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X className="h-4 w-4" />
           </Button>

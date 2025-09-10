@@ -21,8 +21,8 @@ const openSans = Open_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "Hub de Automação Pessoal",
-  description: "Sistema completo de automação financeira e residencial",
+  title: "AuraHub - Personal Automation System",
+  description: "Complete financial and home automation system",
   generator: "v0.app",
 }
 

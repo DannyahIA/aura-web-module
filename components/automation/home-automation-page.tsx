@@ -4,12 +4,11 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Sidebar } from "@/components/layout/sidebar"
-import { Header } from "@/components/layout/header"
 import { DeviceCard } from "@/components/automation/device-card"
 import { QuickActions } from "@/components/automation/quick-actions"
 import { AutomationSchedule } from "@/components/automation/automation-schedule"
 import { Home, Lightbulb, Monitor, Tv, Thermometer, Wifi, Shield, Zap, Plus, Activity } from "lucide-react"
+import { usePageConfig } from "@/hooks/use-page-config"
 
 interface Device {
   id: string
@@ -31,8 +30,15 @@ interface Room {
 }
 
 export function HomeAutomationPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState<string>("all")
+
+  // Configure page information
+  usePageConfig({
+    page: "automation",
+    title: "Home Automation",
+    subtitle: "Control and monitor all your home devices"
+  })
+
   const [devices, setDevices] = useState<Device[]>([
     {
       id: "1",
@@ -197,21 +203,10 @@ export function HomeAutomationPage() {
   const unavailableDevices = devices.filter((d) => d.status === "unavailable").length
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage="automacao" />
-
-      <div className="lg:ml-64">
-        <Header
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          title="Automação Residencial"
-          subtitle="Controle e monitore todos os dispositivos da sua casa"
-        />
-
-        <main className="p-4 lg:p-6 space-y-6">
-          {/* Status Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
+    <div className="space-y-6">
+      {/* Status Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Dispositivos Ativos</CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
@@ -340,8 +335,6 @@ export function HomeAutomationPage() {
 
           {/* Automation Schedule */}
           <AutomationSchedule />
-        </main>
-      </div>
     </div>
   )
 }

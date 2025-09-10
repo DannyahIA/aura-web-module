@@ -12,6 +12,7 @@ import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { User, Camera, Save, Key, HelpCircle, Eye, EyeOff, CheckCircle, AlertCircle } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { usePageConfig } from "@/hooks/use-page-config"
 
 interface UserProfile {
   name: string
@@ -29,10 +30,16 @@ export function ProfilePage() {
   console.log("[v0] ProfilePage component is rendering")
 
   const { user } = useAuth()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [showSecrets, setShowSecrets] = useState(false)
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle")
+
+  // Configure page information
+  usePageConfig({
+    page: "profile",
+    title: "User Profile",
+    subtitle: "Manage your personal information and settings"
+  })
 
   const [profile, setProfile] = useState<UserProfile>({
     name: user?.name || "",
@@ -82,23 +89,9 @@ export function ProfilePage() {
   console.log("[v0] ProfilePage profile state:", profile)
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage="perfil" />
-
-      <div className="lg:ml-64">
-        <Header
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          title="Perfil do Usuário"
-          subtitle="Gerencie suas informações pessoais e credenciais de API"
-        />
-
-        <main className="px-4 lg:px-6 pb-4 lg:pb-6 pt-0 bg-red-100 min-h-[500px]">
-          {console.log("[v0] ProfilePage main content is rendering")}
-
-          {/* Profile Information */}
+    <div className="space-y-6">
+      {/* Profile Information */}
           <Card className="mb-6">
-            {console.log("[v0] ProfilePage first card is rendering")}
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -208,7 +201,6 @@ export function ProfilePage() {
 
           {/* API Credentials */}
           <Card>
-            {console.log("[v0] ProfilePage second card is rendering")}
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-montserrat">
                 <Key className="h-5 w-5" />
@@ -313,8 +305,6 @@ export function ProfilePage() {
               </div>
             </CardContent>
           </Card>
-        </main>
-      </div>
     </div>
   )
 }

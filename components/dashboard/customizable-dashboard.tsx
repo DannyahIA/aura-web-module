@@ -46,11 +46,11 @@ export function CustomizableDashboard() {
   const [editMode, setEditMode] = useState(false)
   const [showWidgetSelector, setShowWidgetSelector] = useState(false)
 
-  // Configurar as informações da página
+  // Configure page information
   usePageConfig({
     page: "dashboard",
-    title: "Dashboard Customizável",
-    subtitle: "Organize seu workspace do jeito que preferir"
+    title: "Customizable Dashboard",
+    subtitle: "Organize your workspace the way you prefer"
   })
 
   const sensors = useSensors(

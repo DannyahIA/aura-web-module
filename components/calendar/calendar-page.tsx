@@ -8,6 +8,7 @@ import { CalendarDays, Plus, ChevronLeft, ChevronRight } from "lucide-react"
 import { CalendarGrid } from "./calendar-grid"
 import { EventFilters } from "./event-filters"
 import { AddEventDialog } from "./add-event-dialog"
+import { usePageConfig } from "@/hooks/use-page-config"
 
 const mockEvents = [
   {
@@ -70,6 +71,13 @@ export function CalendarPage() {
   })
   const [showAddDialog, setShowAddDialog] = useState(false)
 
+  // Configure page information
+  usePageConfig({
+    page: "calendar",
+    title: "Calendar",
+    subtitle: "Manage events, appointments and financial reminders"
+  })
+
   const navigateMonth = (direction: "prev" | "next") => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev)
@@ -98,18 +106,18 @@ export function CalendarPage() {
   })
 
   const monthNames = [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro",
+    "January",
+    "February",
+    "March", 
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ]
 
   return (
@@ -122,7 +130,7 @@ export function CalendarPage() {
         </div>
         <Button onClick={() => setShowAddDialog(true)} className="bg-cyan-500 hover:bg-cyan-600">
           <Plus className="h-4 w-4 mr-2" />
-          Novo Evento
+          New Event
         </Button>
       </div>
 
@@ -153,7 +161,7 @@ export function CalendarPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Próximos Eventos</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900">Upcoming Events</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

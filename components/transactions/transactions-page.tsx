@@ -189,11 +189,11 @@ export function TransactionsPage() {
   const [dateRange, setDateRange] = useState({ from: "", to: "" })
   const [showFilters, setShowFilters] = useState(false)
 
-  // Configurar as informações da página
+  // Configure page information
   usePageConfig({
-    page: "transacoes",
-    title: "Transações",
-    subtitle: "Visualize e gerencie todas as suas transações"
+    page: "transactions",
+    title: "Transactions",
+    subtitle: "View and manage all your transactions"
   })
 
   const filteredTransactions = useMemo(() => {

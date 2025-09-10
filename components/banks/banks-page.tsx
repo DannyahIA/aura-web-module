@@ -31,11 +31,11 @@ export function BanksPage() {
   const [addAccountOpen, setAddAccountOpen] = useState(false)
   const [selectedBankId, setSelectedBankId] = useState<string>("")
 
-  // Configurar as informações da página
+  // Configure page information
   usePageConfig({
-    page: "bancos",
-    title: "Gerenciamento de Bancos",
-    subtitle: "Conecte e gerencie suas contas bancárias"
+    page: "banks",
+    title: "Bank Management",
+    subtitle: "Connect and manage your bank accounts"
   })
 
   const [banks, setBanks] = useState<Bank[]>([

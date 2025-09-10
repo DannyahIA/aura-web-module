@@ -125,11 +125,11 @@ export function FinancialAnalysisPage() {
   const [viewType, setViewType] = useState<"overview" | "categories" | "trends">("overview")
   const [showFilters, setShowFilters] = useState(false)
 
-  // Configurar as informações da página
+  // Configure page information
   usePageConfig({
-    page: "financas",
-    title: "Análise Financeira",
-    subtitle: "Visualize e analise seus dados financeiros"
+    page: "finances",
+    title: "Financial Analysis",
+    subtitle: "Visualize and analyze your financial data"
   })
 
   const currentMonth = mockMonthlyData[0]
