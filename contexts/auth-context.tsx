@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Simular verificação de token armazenado
+    // Simulate stored token check
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
       setUser(JSON.parse(storedUser))
@@ -37,14 +37,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true)
 
-    // Simular chamada de API
+    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    // Simular validação (aceita qualquer email/senha para demo)
+    // Simulate validation (accepts any email/password for demo)
     if (email && password) {
       const mockUser: User = {
         id: "1",
-        name: "Usuário Demo",
+        name: "Demo User",
         email: email,
         phone: "+55 11 99999-9999",
         avatar: "/diverse-user-avatars.png",
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     setIsLoading(true)
 
-    // Simular chamada de API
+    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     if (name && email && password) {

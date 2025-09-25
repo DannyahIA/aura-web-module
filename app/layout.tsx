@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className={`${montserrat.variable} ${openSans.variable} antialiased`}>
+    <html lang="en" className={`${montserrat.variable} ${openSans.variable} antialiased`}>
       <body className="font-sans">
         <AuthProvider>
           <LayoutProvider>

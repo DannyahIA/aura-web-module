@@ -46,7 +46,7 @@ export function FinancialFilters({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 bg-muted/30 rounded-lg">
       <div className="space-y-3">
-        <Label>Bancos Incluídos</Label>
+        <Label>Included Banks</Label>
         <div className="space-y-2">
           {banks.map((bank) => (
             <div key={bank.id} className="flex items-center space-x-2">
@@ -64,7 +64,7 @@ export function FinancialFilters({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="comparison-months">Período de Comparação</Label>
+        <Label htmlFor="comparison-months">Comparison Period</Label>
         <Select
           value={comparisonMonths.toString()}
           onValueChange={(value) => setComparisonMonths(Number.parseInt(value))}
@@ -73,21 +73,21 @@ export function FinancialFilters({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="3">Últimos 3 meses</SelectItem>
-            <SelectItem value="6">Últimos 6 meses</SelectItem>
-            <SelectItem value="12">Último ano</SelectItem>
+            <SelectItem value="3">Last 3 months</SelectItem>
+            <SelectItem value="6">Last 6 months</SelectItem>
+            <SelectItem value="12">Last year</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="category-focus">Foco em Categoria</Label>
+        <Label htmlFor="category-focus">Category Focus</Label>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
           <SelectTrigger>
-            <SelectValue placeholder="Todas as categorias" />
+            <SelectValue placeholder="All categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas as categorias</SelectItem>
+            <SelectItem value="all">All categories</SelectItem>
             {categories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}
@@ -101,7 +101,7 @@ export function FinancialFilters({
         <div className="md:col-span-2 lg:col-span-3 flex justify-center">
           <Button variant="outline" onClick={clearAllFilters} className="w-full md:w-auto bg-transparent">
             <X className="h-4 w-4 mr-2" />
-            Resetar Filtros
+            Reset Filters
           </Button>
         </div>
       )}

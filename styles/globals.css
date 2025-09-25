@@ -121,3 +121,26 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Efeito Aurora para o Background da Página de Login */
+@keyframes aurora {
+  0% {
+    transform: translate(var(--x-start), var(--y-start)) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(var(--x-end), var(--y-end)) scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(var(--x-start), var(--y-start)) scale(1);
+    opacity: 0.3;
+  }
+}
+
+.aurora-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  animation: aurora 20s infinite ease-in-out;
+}

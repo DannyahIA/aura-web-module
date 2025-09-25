@@ -7,7 +7,7 @@ export function WeatherWidget() {
   return (
     <>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-montserrat">Clima</CardTitle>
+        <CardTitle className="text-base font-montserrat">Weather</CardTitle>
         <CardDescription className="text-xs">São Paulo, SP</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -16,18 +16,18 @@ export function WeatherWidget() {
             <Sun className="h-6 w-6 text-yellow-500" />
             <div>
               <p className="text-2xl font-bold">28°C</p>
-              <p className="text-xs text-muted-foreground">Ensolarado</p>
+              <p className="text-xs text-muted-foreground">Sunny</p>
             </div>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div className="flex items-center gap-1">
             <Droplets className="h-3 w-3 text-blue-500" />
-            <span>Umidade: 65%</span>
+            <span>Humidity: 65%</span>
           </div>
           <div className="flex items-center gap-1">
             <Cloud className="h-3 w-3 text-gray-500" />
-            <span>Vento: 12 km/h</span>
+            <span>Wind: 12 km/h</span>
           </div>
         </div>
       </CardContent>

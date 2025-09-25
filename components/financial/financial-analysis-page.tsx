@@ -33,19 +33,19 @@ interface MonthlyData {
 
 const mockMonthlyData: MonthlyData[] = [
   {
-    month: "Janeiro",
+    month: "January",
     year: 2024,
     totalSpent: 4280.5,
     totalIncome: 6700.0,
     categories: {
-      Alimentação: 890.5,
-      Transporte: 650.0,
-      Supermercado: 580.75,
-      Utilidades: 445.0,
-      Entretenimento: 320.9,
-      Combustível: 240.0,
-      Transferência: 250.0,
-      Outros: 903.35,
+      Food: 890.5,
+      Transport: 650.0,
+      Supermarket: 580.75,
+      Utilities: 445.0,
+      Entertainment: 320.9,
+      Fuel: 240.0,
+      Transfer: 250.0,
+      Others: 903.35,
     },
     merchants: {
       Uber: 420.5,
@@ -55,23 +55,23 @@ const mockMonthlyData: MonthlyData[] = [
       Starbucks: 156.9,
       "Posto Shell": 240.0,
       ENEL: 245.0,
-      Outros: 2457.65,
+      Others: 2457.65,
     },
   },
   {
-    month: "Dezembro",
+    month: "December",
     year: 2023,
     totalSpent: 5120.8,
     totalIncome: 6700.0,
     categories: {
-      Alimentação: 1200.5,
-      Transporte: 780.0,
-      Supermercado: 690.75,
-      Utilidades: 445.0,
-      Entretenimento: 520.9,
-      Combustível: 320.0,
-      Transferência: 180.0,
-      Outros: 983.65,
+      Food: 1200.5,
+      Transport: 780.0,
+      Supermarket: 690.75,
+      Utilities: 445.0,
+      Entertainment: 520.9,
+      Fuel: 320.0,
+      Transfer: 180.0,
+      Others: 983.65,
     },
     merchants: {
       Uber: 520.0,
@@ -81,23 +81,23 @@ const mockMonthlyData: MonthlyData[] = [
       Starbucks: 200.0,
       "Posto Shell": 320.0,
       ENEL: 245.0,
-      Outros: 2774.85,
+      Others: 2774.85,
     },
   },
   {
-    month: "Novembro",
+    month: "November",
     year: 2023,
     totalSpent: 3890.2,
     totalIncome: 6700.0,
     categories: {
-      Alimentação: 720.5,
-      Transporte: 580.0,
-      Supermercado: 480.75,
-      Utilidades: 445.0,
-      Entretenimento: 280.9,
-      Combustível: 200.0,
-      Transferência: 320.0,
-      Outros: 863.05,
+      Food: 720.5,
+      Transport: 580.0,
+      Supermarket: 480.75,
+      Utilities: 445.0,
+      Entertainment: 280.9,
+      Fuel: 200.0,
+      Transfer: 320.0,
+      Others: 863.05,
     },
     merchants: {
       Uber: 380.0,
@@ -107,7 +107,7 @@ const mockMonthlyData: MonthlyData[] = [
       Starbucks: 120.0,
       "Posto Shell": 200.0,
       ENEL: 245.0,
-      Outros: 2334.25,
+      Others: 2334.25,
     },
   },
 ]
@@ -144,9 +144,9 @@ export function FinancialAnalysisPage() {
   const savingsRate = ((currentMonth.totalIncome - currentMonth.totalSpent) / currentMonth.totalIncome) * 100
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "BRL",
+      currency: "USD",
     }).format(value)
   }
 
@@ -156,15 +156,15 @@ export function FinancialAnalysisPage() {
     if (spendingChange > 10) {
       insights.push({
         type: "warning",
-        title: "Gastos Aumentaram",
-        description: `Seus gastos aumentaram ${spendingChange.toFixed(1)}% comparado ao mês anterior`,
+        title: "Increased Spending",
+        description: `Your spending increased by ${spendingChange.toFixed(1)}% compared to last month`,
         icon: AlertTriangle,
       })
     } else if (spendingChange < -10) {
       insights.push({
         type: "success",
-        title: "Economia Detectada",
-        description: `Você economizou ${Math.abs(spendingChange).toFixed(1)}% comparado ao mês anterior`,
+        title: "Savings Detected",
+        description: `You saved ${Math.abs(spendingChange).toFixed(1)}% compared to last month`,
         icon: TrendingDown,
       })
     }
@@ -173,18 +173,18 @@ export function FinancialAnalysisPage() {
     if (topCategory) {
       insights.push({
         type: "info",
-        title: "Maior Categoria de Gasto",
-        description: `${topCategory[0]} representa ${formatCurrency(topCategory[1])} dos seus gastos`,
+        title: "Top Spending Category",
+        description: `${topCategory[0]} represents ${formatCurrency(topCategory[1])} of your spending`,
         icon: PieChart,
       })
     }
 
     const topMerchant = Object.entries(currentMonth.merchants).sort(([, a], [, b]) => b - a)[0]
-    if (topMerchant && topMerchant[0] !== "Outros") {
+    if (topMerchant && topMerchant[0] !== "Others") {
       insights.push({
         type: "info",
-        title: "Maior Gasto Individual",
-        description: `Você gastou ${formatCurrency(topMerchant[1])} com ${topMerchant[0]} este mês`,
+        title: "Top Individual Expense",
+        description: `You spent ${formatCurrency(topMerchant[1])} with ${topMerchant[0]} this month`,
         icon: Target,
       })
     }
@@ -192,15 +192,15 @@ export function FinancialAnalysisPage() {
     if (savingsRate > 30) {
       insights.push({
         type: "success",
-        title: "Excelente Taxa de Poupança",
-        description: `Você está poupando ${savingsRate.toFixed(1)}% da sua renda`,
+        title: "Excellent Savings Rate",
+        description: `You are saving ${savingsRate.toFixed(1)}% of your income`,
         icon: TrendingUp,
       })
     } else if (savingsRate < 10) {
       insights.push({
         type: "warning",
-        title: "Taxa de Poupança Baixa",
-        description: `Considere reduzir gastos. Taxa atual: ${savingsRate.toFixed(1)}%`,
+        title: "Low Savings Rate",
+        description: `Consider reducing expenses. Current rate: ${savingsRate.toFixed(1)}%`,
         icon: AlertTriangle,
       })
     }
@@ -216,7 +216,7 @@ export function FinancialAnalysisPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Gastos do Mês</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Spending</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -227,14 +227,14 @@ export function FinancialAnalysisPage() {
                   }`}
                 >
                   {spendingChange > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {Math.abs(spendingChange).toFixed(1)}% vs mês anterior
+                  {Math.abs(spendingChange).toFixed(1)}% vs last month
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Receita do Mês</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Income</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -243,32 +243,32 @@ export function FinancialAnalysisPage() {
                   className={`text-xs flex items-center gap-1 ${incomeChange >= 0 ? "text-green-600" : "text-red-600"}`}
                 >
                   {incomeChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {Math.abs(incomeChange).toFixed(1)}% vs mês anterior
+                  {Math.abs(incomeChange).toFixed(1)}% vs last month
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Taxa de Poupança</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Savings Rate</CardTitle>
                 <Target className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold font-montserrat">{savingsRate.toFixed(1)}%</div>
                 <p className="text-xs text-muted-foreground">
-                  {formatCurrency(currentMonth.totalIncome - currentMonth.totalSpent)} poupados
+                  {formatCurrency(currentMonth.totalIncome - currentMonth.totalSpent)} saved
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Média Diária</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Daily Average</CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold font-montserrat">{formatCurrency(currentMonth.totalSpent / 31)}</div>
-                <p className="text-xs text-muted-foreground">Gasto médio por dia</p>
+                <p className="text-xs text-muted-foreground">Average daily spending</p>
               </CardContent>
             </Card>
           </div>
@@ -278,8 +278,8 @@ export function FinancialAnalysisPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="font-montserrat">Controles de Análise</CardTitle>
-                  <CardDescription>Personalize sua visualização financeira</CardDescription>
+                  <CardTitle className="font-montserrat">Analysis Controls</CardTitle>
+                  <CardDescription>Customize your financial view</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -288,7 +288,7 @@ export function FinancialAnalysisPage() {
                     onClick={() => setViewType("overview")}
                   >
                     <BarChart3 className="h-4 w-4 mr-2" />
-                    Visão Geral
+                    Overview
                   </Button>
                   <Button
                     variant={viewType === "categories" ? "default" : "outline"}
@@ -296,7 +296,7 @@ export function FinancialAnalysisPage() {
                     onClick={() => setViewType("categories")}
                   >
                     <PieChart className="h-4 w-4 mr-2" />
-                    Categorias
+                    Categories
                   </Button>
                   <Button
                     variant={viewType === "trends" ? "default" : "outline"}
@@ -304,11 +304,11 @@ export function FinancialAnalysisPage() {
                     onClick={() => setViewType("trends")}
                   >
                     <LineChart className="h-4 w-4 mr-2" />
-                    Tendências
+                    Trends
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
                     <Filter className="h-4 w-4 mr-2" />
-                    {showFilters ? "Ocultar" : "Mostrar"} Filtros
+                    {showFilters ? "Hide" : "Show"} Filters
                   </Button>
                 </div>
               </div>
@@ -333,8 +333,8 @@ export function FinancialAnalysisPage() {
           {insights.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="font-montserrat">Insights Inteligentes</CardTitle>
-                <CardDescription>Análises automáticas dos seus padrões financeiros</CardDescription>
+                <CardTitle className="font-montserrat">Smart Insights</CardTitle>
+                <CardDescription>Automated analysis of your financial patterns</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -396,8 +396,8 @@ export function FinancialAnalysisPage() {
               <SpendingChart data={filteredData} />
               <Card>
                 <CardHeader>
-                  <CardTitle className="font-montserrat">Análise de Tendências</CardTitle>
-                  <CardDescription>Padrões de gastos ao longo do tempo</CardDescription>
+                  <CardTitle className="font-montserrat">Trend Analysis</CardTitle>
+                  <CardDescription>Spending patterns over time</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -409,7 +409,7 @@ export function FinancialAnalysisPage() {
                         <div key={category} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
                           <div>
                             <p className="font-medium">{category}</p>
-                            <p className="text-sm text-muted-foreground">{formatCurrency(amount)} este mês</p>
+                            <p className="text-sm text-muted-foreground">{formatCurrency(amount)} this month</p>
                           </div>
                           <div className="text-right">
                             <Badge
@@ -419,7 +419,7 @@ export function FinancialAnalysisPage() {
                               {change > 0 ? "+" : ""}
                               {change.toFixed(1)}%
                             </Badge>
-                            <p className="text-xs text-muted-foreground">vs mês anterior</p>
+                            <p className="text-xs text-muted-foreground">vs last month</p>
                           </div>
                         </div>
                       )

@@ -4,29 +4,29 @@ import { TrendingUp, TrendingDown, DollarSign, Bell } from "lucide-react"
 export function QuickStatsWidget() {
   const quickStats = [
     {
-      title: "Saldo Total",
-      value: "R$ 12.450,00",
+      title: "Total Balance",
+      value: "$12,450.00",
       change: "+2.5%",
       trend: "up",
       icon: DollarSign,
     },
     {
-      title: "Gastos do Mês",
-      value: "R$ 3.280,00",
+      title: "Monthly Expenses",
+      value: "$3,280.00",
       change: "-5.2%",
       trend: "down",
       icon: TrendingDown,
     },
     {
-      title: "Contas Pendentes",
+      title: "Pending Bills",
       value: "4",
-      change: "Próximas 7 dias",
+      change: "Next 7 days",
       trend: "neutral",
       icon: Bell,
     },
     {
-      title: "Economia",
-      value: "R$ 890,00",
+      title: "Savings",
+      value: "$890.00",
       change: "+12.3%",
       trend: "up",
       icon: TrendingUp,

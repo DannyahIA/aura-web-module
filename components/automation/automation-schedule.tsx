@@ -19,41 +19,41 @@ interface ScheduleItem {
 const mockSchedules: ScheduleItem[] = [
   {
     id: "1",
-    name: "Luzes da Manhã",
+    name: "Morning Lights",
     time: "07:00",
-    days: ["Seg", "Ter", "Qua", "Qui", "Sex"],
+    days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
     action: "turn_on",
-    devices: ["Luzes Principais", "Luzes do Quarto"],
+    devices: ["Main Lights", "Bedroom Lights"],
     enabled: true,
     icon: Lightbulb,
   },
   {
     id: "2",
-    name: "Computador Trabalho",
+    name: "Work Computer",
     time: "08:30",
-    days: ["Seg", "Ter", "Qua", "Qui", "Sex"],
+    days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
     action: "turn_on",
-    devices: ["Computador Principal"],
+    devices: ["Main Computer"],
     enabled: true,
     icon: Monitor,
   },
   {
     id: "3",
-    name: "Modo Noturno",
+    name: "Night Mode",
     time: "22:00",
-    days: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+    days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     action: "turn_off",
-    devices: ["TV Samsung", "Luzes Principais"],
+    devices: ["Samsung TV", "Main Lights"],
     enabled: true,
     icon: Clock,
   },
   {
     id: "4",
-    name: "Ar Condicionado Noite",
+    name: "Night Air Conditioner",
     time: "23:30",
-    days: ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+    days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
     action: "turn_on",
-    devices: ["Ar Condicionado"],
+    devices: ["Air Conditioner"],
     enabled: false,
     icon: Thermometer,
   },
@@ -63,13 +63,13 @@ export function AutomationSchedule() {
   const getActionText = (action: ScheduleItem["action"]) => {
     switch (action) {
       case "turn_on":
-        return "Ligar"
+        return "Turn On"
       case "turn_off":
-        return "Desligar"
+        return "Turn Off"
       case "set_brightness":
-        return "Ajustar Brilho"
+        return "Adjust Brightness"
       case "set_temperature":
-        return "Ajustar Temperatura"
+        return "Adjust Temperature"
     }
   }
 
@@ -78,12 +78,12 @@ export function AutomationSchedule() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="font-montserrat">Automações Programadas</CardTitle>
-            <CardDescription>Controle automático baseado em horários e dias da semana</CardDescription>
+            <CardTitle className="font-montserrat">Scheduled Automations</CardTitle>
+            <CardDescription>Automatic control based on time and days of the week</CardDescription>
           </div>
           <Button variant="outline" size="sm">
             <Plus className="h-4 w-4 mr-2" />
-            Nova Automação
+            New Automation
           </Button>
         </div>
       </CardHeader>
@@ -113,23 +113,23 @@ export function AutomationSchedule() {
                       <span>•</span>
                       <span>{getActionText(schedule.action)}</span>
                       <span>•</span>
-                      <span>{schedule.devices.length} dispositivo(s)</span>
+                      <span>{schedule.devices.length} device(s)</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Badge variant={schedule.enabled ? "default" : "secondary"}>
-                    {schedule.enabled ? "Ativo" : "Inativo"}
+                    {schedule.enabled ? "Active" : "Inactive"}
                   </Badge>
                   <Button variant="ghost" size="sm">
-                    Editar
+                    Edit
                   </Button>
                 </div>
               </div>
 
               <div className="mt-3 flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Dias:</span>
+                <span className="text-sm text-muted-foreground">Days:</span>
                 <div className="flex gap-1">
                   {schedule.days.map((day) => (
                     <Badge key={day} variant="outline" className="text-xs">
@@ -140,7 +140,7 @@ export function AutomationSchedule() {
               </div>
 
               <div className="mt-2 flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Dispositivos:</span>
+                <span className="text-sm text-muted-foreground">Devices:</span>
                 <div className="flex flex-wrap gap-1">
                   {schedule.devices.map((device) => (
                     <Badge key={device} variant="secondary" className="text-xs">
@@ -155,13 +155,13 @@ export function AutomationSchedule() {
           {mockSchedules.length === 0 && (
             <div className="text-center py-8">
               <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h3 className="font-semibold mb-2">Nenhuma automação configurada</h3>
+              <h3 className="font-semibold mb-2">No automation configured</h3>
               <p className="text-muted-foreground mb-4">
-                Crie automações para controlar seus dispositivos automaticamente
+                Create automations to control your devices automatically
               </p>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Criar Primeira Automação
+                Create First Automation
               </Button>
             </div>
           )}

@@ -19,15 +19,15 @@ interface SpendingChartProps {
 export function SpendingChart({ data }: SpendingChartProps) {
   const chartData = data.map((item) => ({
     month: item.month,
-    gastos: item.totalSpent,
-    receitas: item.totalIncome,
-    economia: item.totalIncome - item.totalSpent,
+    expenses: item.totalSpent,
+    income: item.totalIncome,
+    savings: item.totalIncome - item.totalSpent,
   }))
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "BRL",
+      currency: "USD",
       minimumFractionDigits: 0,
     }).format(value)
   }
@@ -35,8 +35,8 @@ export function SpendingChart({ data }: SpendingChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-montserrat">Evolução Mensal</CardTitle>
-        <CardDescription>Comparação de receitas, gastos e economia</CardDescription>
+        <CardTitle className="font-montserrat">Monthly Evolution</CardTitle>
+        <CardDescription>Comparison of income, expenses, and savings</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -45,9 +45,9 @@ export function SpendingChart({ data }: SpendingChartProps) {
             <XAxis dataKey="month" />
             <YAxis tickFormatter={formatCurrency} />
             <Tooltip formatter={(value: number) => formatCurrency(value)} />
-            <Bar dataKey="receitas" fill="#10b981" name="Receitas" />
-            <Bar dataKey="gastos" fill="#ef4444" name="Gastos" />
-            <Bar dataKey="economia" fill="#3b82f6" name="Economia" />
+            <Bar dataKey="income" fill="#10b981" name="Income" />
+            <Bar dataKey="expenses" fill="#ef4444" name="Expenses" />
+            <Bar dataKey="savings" fill="#3b82f6" name="Savings" />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

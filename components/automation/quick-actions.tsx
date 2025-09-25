@@ -25,7 +25,7 @@ export function QuickActions({ devices, onDeviceToggle }: QuickActionsProps) {
   const quickActions = [
     {
       id: "lights-all",
-      name: "Todas as Luzes",
+      name: "All Lights",
       icon: Lightbulb,
       action: () => {
         const lights = devices.filter((d) => d.type === "light" && d.controllable)
@@ -38,7 +38,7 @@ export function QuickActions({ devices, onDeviceToggle }: QuickActionsProps) {
     },
     {
       id: "computers-all",
-      name: "Computadores",
+      name: "Computers",
       icon: Monitor,
       action: () => {
         const computers = devices.filter((d) => d.type === "computer" && d.controllable)
@@ -51,7 +51,7 @@ export function QuickActions({ devices, onDeviceToggle }: QuickActionsProps) {
     },
     {
       id: "tvs-all",
-      name: "Televisões",
+      name: "TVs",
       icon: Tv,
       action: () => {
         const tvs = devices.filter((d) => d.type === "tv" && d.controllable)
@@ -64,7 +64,7 @@ export function QuickActions({ devices, onDeviceToggle }: QuickActionsProps) {
     },
     {
       id: "security",
-      name: "Segurança",
+      name: "Security",
       icon: Shield,
       action: () => {
         const security = devices.find((d) => d.type === "security" && d.controllable)
@@ -83,8 +83,8 @@ export function QuickActions({ devices, onDeviceToggle }: QuickActionsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-montserrat">Ações Rápidas</CardTitle>
-        <CardDescription>Controle múltiplos dispositivos de uma vez</CardDescription>
+        <CardTitle className="font-montserrat">Quick Actions</CardTitle>
+        <CardDescription>Control multiple devices at once</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -98,7 +98,7 @@ export function QuickActions({ devices, onDeviceToggle }: QuickActionsProps) {
               <action.icon className="h-6 w-6" />
               <div className="text-center">
                 <div className="font-medium text-sm">{action.name}</div>
-                <div className="text-xs opacity-70">{action.count} dispositivo(s)</div>
+                <div className="text-xs opacity-70">{action.count} device(s)</div>
               </div>
             </Button>
           ))}
@@ -110,8 +110,8 @@ export function QuickActions({ devices, onDeviceToggle }: QuickActionsProps) {
           >
             <Zap className="h-6 w-6" />
             <div className="text-center">
-              <div className="font-medium text-sm">Desligar Tudo</div>
-              <div className="text-xs opacity-70">Emergência</div>
+              <div className="font-medium text-sm">Turn Off All</div>
+              <div className="text-xs opacity-70">Emergency</div>
             </div>
           </Button>
         </div>

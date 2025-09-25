@@ -18,9 +18,9 @@ interface AddAccountDialogProps {
 }
 
 const accountTypes = [
-  { value: "checking", label: "Conta Corrente", icon: Wallet },
-  { value: "savings", label: "Poupança", icon: PiggyBank },
-  { value: "credit", label: "Cartão de Crédito", icon: CreditCard },
+  { value: "checking", label: "Checking Account", icon: Wallet },
+  { value: "savings", label: "Savings", icon: PiggyBank },
+  { value: "credit", label: "Credit Card", icon: CreditCard },
 ]
 
 export function AddAccountDialog({ open, onOpenChange, onAddAccount, bankName }: AddAccountDialogProps) {
@@ -38,7 +38,6 @@ export function AddAccountDialog({ open, onOpenChange, onAddAccount, bankName }:
         type: accountData.type,
       })
 
-      // Reset form
       setAccountData({ name: "", type: "" })
       onOpenChange(false)
     }
@@ -48,16 +47,16 @@ export function AddAccountDialog({ open, onOpenChange, onAddAccount, bankName }:
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-montserrat">Adicionar Conta</DialogTitle>
-          <DialogDescription>Adicione uma nova conta para {bankName}</DialogDescription>
+          <DialogTitle className="font-montserrat">Add Account</DialogTitle>
+          <DialogDescription>Add a new account for {bankName}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="account-name">Nome da Conta</Label>
+            <Label htmlFor="account-name">Account Name</Label>
             <Input
               id="account-name"
-              placeholder="Ex: Conta Corrente, Nu Empresa, Poupança"
+              placeholder="E.g.: Checking Account, Nu Business, Savings"
               value={accountData.name}
               onChange={(e) => setAccountData({ ...accountData, name: e.target.value })}
               required
@@ -65,13 +64,13 @@ export function AddAccountDialog({ open, onOpenChange, onAddAccount, bankName }:
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="account-type">Tipo de Conta</Label>
+            <Label htmlFor="account-type">Account Type</Label>
             <Select
               value={accountData.type}
               onValueChange={(value) => setAccountData({ ...accountData, type: value as any })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione o tipo de conta" />
+                <SelectValue placeholder="Select account type" />
               </SelectTrigger>
               <SelectContent>
                 {accountTypes.map((type) => (
@@ -88,17 +87,16 @@ export function AddAccountDialog({ open, onOpenChange, onAddAccount, bankName }:
 
           <div className="bg-muted/50 p-3 rounded-md">
             <p className="text-sm text-muted-foreground">
-              <strong>Nota:</strong> Após adicionar a conta, você precisará conectá-la usando suas credenciais bancárias
-              para sincronizar os dados.
+              <strong>Note:</strong> After adding the account, you will need to connect it using your bank credentials to synchronize the data.
             </p>
           </div>
 
           <div className="flex gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
-              Cancelar
+              Cancel
             </Button>
             <Button type="submit" disabled={!accountData.name || !accountData.type} className="flex-1">
-              Adicionar Conta
+              Add Account
             </Button>
           </div>
         </form>

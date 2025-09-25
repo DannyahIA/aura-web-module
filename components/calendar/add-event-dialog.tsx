@@ -28,7 +28,6 @@ export function AddEventDialog({ open, onOpenChange }: AddEventDialogProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would typically save the event
     console.log("New event:", formData)
     onOpenChange(false)
     setFormData({
@@ -46,23 +45,23 @@ export function AddEventDialog({ open, onOpenChange }: AddEventDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Adicionar Novo Evento</DialogTitle>
+          <DialogTitle>Add New Event</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="title">Título</Label>
+            <Label htmlFor="title">Title</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Nome do evento"
+              placeholder="Event name"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="date">Data</Label>
+              <Label htmlFor="date">Date</Label>
               <Input
                 id="date"
                 type="date"
@@ -72,7 +71,7 @@ export function AddEventDialog({ open, onOpenChange }: AddEventDialogProps) {
               />
             </div>
             <div>
-              <Label htmlFor="time">Horário</Label>
+              <Label htmlFor="time">Time</Label>
               <Input
                 id="time"
                 type="time"
@@ -85,32 +84,32 @@ export function AddEventDialog({ open, onOpenChange }: AddEventDialogProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="type">Tipo</Label>
+              <Label htmlFor="type">Type</Label>
               <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
+                  <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="work">Trabalho</SelectItem>
-                  <SelectItem value="personal">Pessoal</SelectItem>
-                  <SelectItem value="bill">Conta a Pagar</SelectItem>
-                  <SelectItem value="expense">Gasto</SelectItem>
+                  <SelectItem value="work">Work</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="bill">Bill</SelectItem>
+                  <SelectItem value="expense">Expense</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="calendar">Calendário</Label>
+              <Label htmlFor="calendar">Calendar</Label>
               <Select
                 value={formData.calendar}
                 onValueChange={(value) => setFormData({ ...formData, calendar: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o calendário" />
+                  <SelectValue placeholder="Select calendar" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="work">Trabalho</SelectItem>
-                  <SelectItem value="personal">Pessoal</SelectItem>
-                  <SelectItem value="financial">Financeiro</SelectItem>
+                  <SelectItem value="work">Work</SelectItem>
+                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="financial">Financial</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -118,35 +117,35 @@ export function AddEventDialog({ open, onOpenChange }: AddEventDialogProps) {
 
           {(formData.type === "bill" || formData.type === "expense") && (
             <div>
-              <Label htmlFor="amount">Valor (R$)</Label>
+              <Label htmlFor="amount">Amount (R$)</Label>
               <Input
                 id="amount"
                 type="number"
                 step="0.01"
                 value={formData.amount}
                 onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                placeholder="0,00"
+                placeholder="0.00"
               />
             </div>
           )}
 
           <div>
-            <Label htmlFor="description">Descrição (opcional)</Label>
+            <Label htmlFor="description">Description (optional)</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Detalhes adicionais sobre o evento"
+              placeholder="Additional details about the event"
               rows={3}
             />
           </div>
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
+              Cancel
             </Button>
             <Button type="submit" className="bg-cyan-500 hover:bg-cyan-600">
-              Adicionar Evento
+              Add Event
             </Button>
           </div>
         </form>
