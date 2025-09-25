@@ -20,9 +20,9 @@ interface MonthlyComparisonProps {
 
 export function MonthlyComparison({ currentMonth, previousMonth }: MonthlyComparisonProps) {
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "BRL",
+      currency: "USD",
     }).format(value)
   }
 
@@ -58,7 +58,7 @@ export function MonthlyComparison({ currentMonth, previousMonth }: MonthlyCompar
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-montserrat">Comparação Mensal</CardTitle>
+        <CardTitle className="font-montserrat">Monthly Comparison</CardTitle>
         <CardDescription>
           {currentMonth.month} vs {previousMonth.month} {previousMonth.year}
         </CardDescription>
@@ -67,7 +67,7 @@ export function MonthlyComparison({ currentMonth, previousMonth }: MonthlyCompar
         {/* Overall Comparison */}
         <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
           <div>
-            <p className="text-sm text-muted-foreground mb-1">Gastos Totais</p>
+            <p className="text-sm text-muted-foreground mb-1">Total Expenses</p>
             <p className="font-semibold">{formatCurrency(currentMonth.totalSpent)}</p>
             <div
               className={`flex items-center gap-1 text-xs ${getChangeColor(
@@ -79,7 +79,7 @@ export function MonthlyComparison({ currentMonth, previousMonth }: MonthlyCompar
             </div>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground mb-1">Receitas Totais</p>
+            <p className="text-sm text-muted-foreground mb-1">Total Income</p>
             <p className="font-semibold">{formatCurrency(currentMonth.totalIncome)}</p>
             <div
               className={`flex items-center gap-1 text-xs ${getChangeColor(
@@ -95,7 +95,7 @@ export function MonthlyComparison({ currentMonth, previousMonth }: MonthlyCompar
 
         {/* Category Comparisons */}
         <div className="space-y-2">
-          <h4 className="font-semibold text-sm">Mudanças por Categoria</h4>
+          <h4 className="font-semibold text-sm">Category Changes</h4>
           {categoryComparisons
             .sort((a, b) => Math.abs(b.absoluteChange) - Math.abs(a.absoluteChange))
             .slice(0, 5)

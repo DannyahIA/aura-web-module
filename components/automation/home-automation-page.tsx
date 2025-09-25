@@ -32,7 +32,6 @@ interface Room {
 export function HomeAutomationPage() {
   const [selectedRoom, setSelectedRoom] = useState<string>("all")
 
-  // Configure page information
   usePageConfig({
     page: "automation",
     title: "Home Automation",
@@ -42,9 +41,9 @@ export function HomeAutomationPage() {
   const [devices, setDevices] = useState<Device[]>([
     {
       id: "1",
-      name: "Luzes Principais",
+      name: "Main Lights",
       type: "light",
-      room: "Sala",
+      room: "Living Room",
       status: "on",
       powerConsumption: 45,
       lastUpdated: "2024-01-15T14:30:00Z",
@@ -53,9 +52,9 @@ export function HomeAutomationPage() {
     },
     {
       id: "2",
-      name: "Computador Principal",
+      name: "Main Computer",
       type: "computer",
-      room: "Escritório",
+      room: "Office",
       status: "on",
       powerConsumption: 250,
       lastUpdated: "2024-01-15T14:25:00Z",
@@ -64,9 +63,9 @@ export function HomeAutomationPage() {
     },
     {
       id: "3",
-      name: "TV Samsung",
+      name: "Samsung TV",
       type: "tv",
-      room: "Sala",
+      room: "Living Room",
       status: "off",
       powerConsumption: 0,
       lastUpdated: "2024-01-15T12:00:00Z",
@@ -75,9 +74,9 @@ export function HomeAutomationPage() {
     },
     {
       id: "4",
-      name: "Ar Condicionado",
+      name: "Air Conditioner",
       type: "ac",
-      room: "Quarto",
+      room: "Bedroom",
       status: "off",
       powerConsumption: 0,
       lastUpdated: "2024-01-15T08:00:00Z",
@@ -86,9 +85,9 @@ export function HomeAutomationPage() {
     },
     {
       id: "5",
-      name: "Luzes do Quarto",
+      name: "Bedroom Lights",
       type: "light",
-      room: "Quarto",
+      room: "Bedroom",
       status: "off",
       powerConsumption: 0,
       lastUpdated: "2024-01-15T23:00:00Z",
@@ -97,9 +96,9 @@ export function HomeAutomationPage() {
     },
     {
       id: "6",
-      name: "Roteador Wi-Fi",
+      name: "Wi-Fi Router",
       type: "router",
-      room: "Escritório",
+      room: "Office",
       status: "on",
       powerConsumption: 15,
       lastUpdated: "2024-01-15T14:30:00Z",
@@ -108,9 +107,9 @@ export function HomeAutomationPage() {
     },
     {
       id: "7",
-      name: "Sistema de Segurança",
+      name: "Security System",
       type: "security",
-      room: "Casa",
+      room: "Whole House",
       status: "on",
       powerConsumption: 25,
       lastUpdated: "2024-01-15T14:30:00Z",
@@ -119,9 +118,9 @@ export function HomeAutomationPage() {
     },
     {
       id: "8",
-      name: "TV do Quarto",
+      name: "Bedroom TV",
       type: "tv",
-      room: "Quarto",
+      room: "Bedroom",
       status: "off",
       powerConsumption: 0,
       lastUpdated: "2024-01-15T22:30:00Z",
@@ -132,28 +131,28 @@ export function HomeAutomationPage() {
 
   const rooms: Room[] = [
     {
-      id: "sala",
-      name: "Sala",
+      id: "living-room",
+      name: "Living Room",
       icon: Home,
-      devices: devices.filter((d) => d.room === "Sala"),
+      devices: devices.filter((d) => d.room === "Living Room"),
     },
     {
-      id: "quarto",
-      name: "Quarto",
+      id: "bedroom",
+      name: "Bedroom",
       icon: Home,
-      devices: devices.filter((d) => d.room === "Quarto"),
+      devices: devices.filter((d) => d.room === "Bedroom"),
     },
     {
-      id: "escritorio",
-      name: "Escritório",
+      id: "office",
+      name: "Office",
       icon: Monitor,
-      devices: devices.filter((d) => d.room === "Escritório"),
+      devices: devices.filter((d) => d.room === "Office"),
     },
     {
-      id: "casa",
-      name: "Casa Toda",
+      id: "whole-house",
+      name: "Whole House",
       icon: Shield,
-      devices: devices.filter((d) => d.room === "Casa"),
+      devices: devices.filter((d) => d.room === "Whole House"),
     },
   ]
 
@@ -204,11 +203,10 @@ export function HomeAutomationPage() {
 
   return (
     <div className="space-y-6">
-      {/* Status Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Dispositivos Ativos</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Active Devices</CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -216,61 +214,59 @@ export function HomeAutomationPage() {
                   {activeDevices}/{totalDevices}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {Math.round((activeDevices / totalDevices) * 100)}% ligados
+                  {Math.round((activeDevices / totalDevices) * 100)}% on
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Consumo Total</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Consumption</CardTitle>
                 <Zap className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold font-montserrat">{totalPowerConsumption}W</div>
-                <p className="text-xs text-muted-foreground">Consumo atual estimado</p>
+                <p className="text-xs text-muted-foreground">Current estimated consumption</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Ambientes</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Rooms</CardTitle>
                 <Home className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold font-montserrat">{rooms.length}</div>
-                <p className="text-xs text-muted-foreground">Cômodos monitorados</p>
+                <p className="text-xs text-muted-foreground">Monitored rooms</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Status da Rede</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Network Status</CardTitle>
                 <Wifi className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold font-montserrat text-green-600">Online</div>
                 <p className="text-xs text-muted-foreground">
-                  {unavailableDevices > 0 ? `${unavailableDevices} offline` : "Todos conectados"}
+                  {unavailableDevices > 0 ? `${unavailableDevices} offline` : "All connected"}
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Quick Actions */}
           <QuickActions devices={devices} onDeviceToggle={handleDeviceToggle} />
 
-          {/* Room Filter */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="font-montserrat">Controle por Ambiente</CardTitle>
-                  <CardDescription>Selecione um ambiente para visualizar seus dispositivos</CardDescription>
+                  <CardTitle className="font-montserrat">Room Control</CardTitle>
+                  <CardDescription>Select a room to view its devices</CardDescription>
                 </div>
                 <Button variant="outline" size="sm">
                   <Plus className="h-4 w-4 mr-2" />
-                  Adicionar Dispositivo
+                  Add Device
                 </Button>
               </div>
             </CardHeader>
@@ -281,7 +277,7 @@ export function HomeAutomationPage() {
                   size="sm"
                   onClick={() => setSelectedRoom("all")}
                 >
-                  Todos os Ambientes
+                  All Rooms
                 </Button>
                 {rooms.map((room) => (
                   <Button
@@ -302,7 +298,6 @@ export function HomeAutomationPage() {
             </CardContent>
           </Card>
 
-          {/* Devices Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredDevices.map((device) => (
               <DeviceCard
@@ -319,21 +314,20 @@ export function HomeAutomationPage() {
             <Card>
               <CardContent className="text-center py-12">
                 <Home className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="font-semibold mb-2">Nenhum dispositivo encontrado</h3>
+                <h3 className="font-semibold mb-2">No devices found</h3>
                 <p className="text-muted-foreground mb-4">
                   {selectedRoom === "all"
-                    ? "Adicione dispositivos para começar a controlar sua casa"
-                    : `Nenhum dispositivo encontrado em ${selectedRoom}`}
+                    ? "Add devices to start controlling your home"
+                    : `No devices found in ${selectedRoom}`}
                 </p>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
-                  Adicionar Primeiro Dispositivo
+                  Add First Device
                 </Button>
               </CardContent>
             </Card>
           )}
 
-          {/* Automation Schedule */}
           <AutomationSchedule />
     </div>
   )

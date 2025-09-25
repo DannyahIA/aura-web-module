@@ -36,10 +36,10 @@ export function DeviceCard({ device, icon: Icon, onToggle, onUpdate }: DeviceCar
     const now = new Date()
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
 
-    if (diffInMinutes < 1) return "Agora"
-    if (diffInMinutes < 60) return `${diffInMinutes}m atrás`
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h atrás`
-    return `${Math.floor(diffInMinutes / 1440)}d atrás`
+    if (diffInMinutes < 1) return "Now"
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`
+    return `${Math.floor(diffInMinutes / 1440)}d ago`
   }
 
   const getStatusColor = (status: Device["status"]) => {
@@ -56,11 +56,11 @@ export function DeviceCard({ device, icon: Icon, onToggle, onUpdate }: DeviceCar
   const getStatusText = (status: Device["status"]) => {
     switch (status) {
       case "on":
-        return "Ligado"
+        return "On"
       case "off":
-        return "Desligado"
+        return "Off"
       case "unavailable":
-        return "Indisponível"
+        return "Unavailable"
     }
   }
 
@@ -124,7 +124,7 @@ export function DeviceCard({ device, icon: Icon, onToggle, onUpdate }: DeviceCar
               disabled={device.status === "unavailable"}
             />
           ) : (
-            <Badge variant="secondary">Somente Leitura</Badge>
+            <Badge variant="secondary">Read Only</Badge>
           )}
         </div>
 
@@ -134,7 +134,7 @@ export function DeviceCard({ device, icon: Icon, onToggle, onUpdate }: DeviceCar
             {/* Light Controls */}
             {device.type === "light" && device.properties.brightness !== undefined && (
               <div className="space-y-2">
-                <Label className="text-sm">Brilho: {device.properties.brightness}%</Label>
+                <Label className="text-sm">Brightness: {device.properties.brightness}%</Label>
                 <Slider
                   value={[device.properties.brightness]}
                   onValueChange={([value]) => handlePropertyUpdate("brightness", value)}
@@ -148,7 +148,7 @@ export function DeviceCard({ device, icon: Icon, onToggle, onUpdate }: DeviceCar
             {/* AC Controls */}
             {device.type === "ac" && device.properties.temperature !== undefined && (
               <div className="space-y-2">
-                <Label className="text-sm">Temperatura: {device.properties.temperature}°C</Label>
+                <Label className="text-sm">Temperature: {device.properties.temperature}°C</Label>
                 <Slider
                   value={[device.properties.temperature]}
                   onValueChange={([value]) => handlePropertyUpdate("temperature", value)}
@@ -180,14 +180,14 @@ export function DeviceCard({ device, icon: Icon, onToggle, onUpdate }: DeviceCar
         {device.status === "unavailable" && (
           <div className="flex items-center gap-2 p-2 bg-red-50 text-red-700 rounded-md text-sm">
             <AlertCircle className="h-4 w-4" />
-            <span>Dispositivo não está respondendo</span>
+            <span>Device is not responding</span>
           </div>
         )}
 
         {/* Additional Info */}
         {showSettings && device.properties && (
           <div className="pt-3 border-t space-y-2">
-            <h4 className="font-semibold text-sm">Informações Adicionais</h4>
+            <h4 className="font-semibold text-sm">Additional Information</h4>
             <div className="grid grid-cols-2 gap-2 text-sm">
               {Object.entries(device.properties).map(([key, value]) => (
                 <div key={key} className="flex justify-between">

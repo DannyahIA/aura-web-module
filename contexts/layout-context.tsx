@@ -19,7 +19,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState("dashboard")
   const [pageTitle, setPageTitle] = useState("Dashboard")
-  const [pageSubtitle, setPageSubtitle] = useState("Visão geral do seu sistema")
+  const [pageSubtitle, setPageSubtitle] = useState("Overview of your system")
 
   return (
     <LayoutContext.Provider

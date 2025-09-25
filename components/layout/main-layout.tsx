@@ -1,10 +1,11 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { useLayout } from "@/contexts/layout-context"
-import { Sidebar } from "@/components/layout/sidebar"
+import { AppSidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
-import type { ReactNode } from "react"
+import { SidebarProvider } from "@/components/ui/sidebar"
 
 interface MainLayoutProps {
   children: ReactNode
@@ -12,30 +13,24 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   const { user } = useAuth()
-  const { sidebarOpen, setSidebarOpen, currentPage, pageTitle, pageSubtitle } = useLayout()
+  const { pageTitle, pageSubtitle } = useLayout()
 
-  // Se não estiver logado, não renderiza o layout com sidebar
   if (!user) {
     return <>{children}</>
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div>
-        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} currentPage={currentPage} />
+    <SidebarProvider>
+      <div className="flex min-h-screen min-w-screen">
+        <AppSidebar />
+
+        <div className="flex-1 flex flex-col">
+          <Header title={pageTitle} subtitle={pageSubtitle} />
+          <main className="p-4 lg:p-6 flex-1">
+            {children}
+          </main>
+        </div>
       </div>
-      <div className="lg:ml-64">
-        <Header
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          title={pageTitle}
-          subtitle={pageSubtitle}
-        />
-        
-        <main className="p-4 lg:p-6">
-          {children}
-        </main>
-      </div>
-    </div>
+    </SidebarProvider>
   )
 }

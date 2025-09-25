@@ -5,9 +5,9 @@ import { Calendar, Clock } from "lucide-react"
 
 export function CalendarWidget() {
   const upcomingEvents = [
-    { title: "Reunião de trabalho", time: "14:00", date: "Hoje" },
-    { title: "Consulta médica", time: "10:00", date: "Amanhã" },
-    { title: "Pagamento Netflix", time: "00:00", date: "15/01" },
+    { title: "Work meeting", time: "14:00", date: "Today" },
+    { title: "Doctor appointment", time: "10:00", date: "Tomorrow" },
+    { title: "Netflix payment", time: "00:00", date: "01/15" },
   ]
 
   return (
@@ -15,9 +15,9 @@ export function CalendarWidget() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base font-montserrat">
           <Calendar className="h-4 w-4" />
-          Próximos Eventos
+          Upcoming Events
         </CardTitle>
-        <CardDescription className="text-xs">Agenda dos próximos dias</CardDescription>
+        <CardDescription className="text-xs">Schedule for the next days</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {upcomingEvents.map((event, index) => (
@@ -26,7 +26,7 @@ export function CalendarWidget() {
             <div className="flex-1">
               <p className="text-sm font-medium">{event.title}</p>
               <p className="text-xs text-muted-foreground">
-                {event.date} às {event.time}
+                {event.date} at {event.time}
               </p>
             </div>
           </div>

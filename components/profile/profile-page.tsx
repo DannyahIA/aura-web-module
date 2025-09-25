@@ -64,7 +64,7 @@ export function ProfilePage() {
   const handleSave = async () => {
     setSaveStatus("saving")
 
-    // Simular salvamento
+    // Simulate saving
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     setSaveStatus("saved")
@@ -95,20 +95,20 @@ export function ProfilePage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="font-montserrat">Informações Pessoais</CardTitle>
-                  <CardDescription>Atualize seus dados pessoais</CardDescription>
+                  <CardTitle className="font-montserrat">Personal Information</CardTitle>
+                  <CardDescription>Update your personal data</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   {saveStatus === "saved" && (
                     <div className="flex items-center gap-1 text-green-600 text-sm">
                       <CheckCircle className="h-4 w-4" />
-                      Salvo
+                      Saved
                     </div>
                   )}
                   {saveStatus === "error" && (
                     <div className="flex items-center gap-1 text-red-600 text-sm">
                       <AlertCircle className="h-4 w-4" />
-                      Erro
+                      Error
                     </div>
                   )}
                   <Button
@@ -119,15 +119,15 @@ export function ProfilePage() {
                     {saveStatus === "saving" ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Salvando...
+                        Saving...
                       </>
                     ) : isEditing ? (
                       <>
                         <Save className="h-4 w-4 mr-2" />
-                        Salvar
+                        Save
                       </>
                     ) : (
-                      "Editar"
+                      "Edit"
                     )}
                   </Button>
                 </div>
@@ -164,7 +164,7 @@ export function ProfilePage() {
               {/* Form Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo</Label>
+                  <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
                     value={profile.name}
@@ -185,11 +185,11 @@ export function ProfilePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Número de Telefone</Label>
+                  <Label htmlFor="phone">Phone Number</Label>
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="+55 11 99999-9999"
+                    placeholder="+1 555 555-5555"
                     value={profile.phone}
                     onChange={(e) => handleProfileChange("phone", e.target.value)}
                     disabled={!isEditing}
@@ -204,9 +204,9 @@ export function ProfilePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-montserrat">
                 <Key className="h-5 w-5" />
-                Credenciais de API
+                API Credentials
               </CardTitle>
-              <CardDescription>Configure suas chaves de API para integração com serviços externos</CardDescription>
+              <CardDescription>Configure your API keys for integration with external services</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Pluggy Credentials */}
@@ -222,10 +222,10 @@ export function ProfilePage() {
                       </TooltipTrigger>
                       <TooltipContent className="max-w-sm">
                         <div className="space-y-2">
-                          <p className="font-semibold">Como obter credenciais do Pluggy:</p>
+                          <p className="font-semibold">How to get Pluggy credentials:</p>
                           <ol className="text-sm space-y-1 list-decimal list-inside">
                             <li>
-                              Acesse{" "}
+                              Go to{" "}
                               <a
                                 href="https://pluggy.ai"
                                 className="text-primary underline"
@@ -235,10 +235,10 @@ export function ProfilePage() {
                                 pluggy.ai
                               </a>
                             </li>
-                            <li>Crie uma conta ou faça login</li>
-                            <li>Vá para o Dashboard</li>
-                            <li>Acesse "API Keys" no menu</li>
-                            <li>Copie o CLIENT_ID e CLIENT_SECRET</li>
+                            <li>Create an account or log in</li>
+                            <li>Go to the Dashboard</li>
+                            <li>Access "API Keys" in the menu</li>
+                            <li>Copy the CLIENT_ID and CLIENT_SECRET</li>
                           </ol>
                         </div>
                       </TooltipContent>
@@ -251,7 +251,7 @@ export function ProfilePage() {
                     <Label htmlFor="pluggy_client_id">Client ID</Label>
                     <Input
                       id="pluggy_client_id"
-                      placeholder="Seu Client ID do Pluggy"
+                      placeholder="Your Pluggy Client ID"
                       value={credentials.pluggy_client_id}
                       onChange={(e) => handleCredentialsChange("pluggy_client_id", e.target.value)}
                       disabled={!isEditing}
@@ -264,7 +264,7 @@ export function ProfilePage() {
                       <Input
                         id="pluggy_client_secret"
                         type={showSecrets ? "text" : "password"}
-                        placeholder="Seu Client Secret do Pluggy"
+                        placeholder="Your Pluggy Client Secret"
                         value={credentials.pluggy_client_secret}
                         onChange={(e) => handleCredentialsChange("pluggy_client_secret", e.target.value)}
                         disabled={!isEditing}
@@ -289,8 +289,7 @@ export function ProfilePage() {
 
                 <div className="bg-muted/50 p-3 rounded-md">
                   <p className="text-sm text-muted-foreground">
-                    <strong>Importante:</strong> Suas credenciais são armazenadas de forma segura e criptografada. Elas
-                    são necessárias para sincronizar dados bancários através da API do Pluggy.
+                    <strong>Important:</strong> Your credentials are stored securely and encrypted. They are required to synchronize banking data through the Pluggy API.
                   </p>
                 </div>
               </div>
@@ -298,9 +297,9 @@ export function ProfilePage() {
               {/* Future API Integrations Placeholder */}
               <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
                 <Key className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <h4 className="font-semibold text-muted-foreground mb-1">Mais integrações em breve</h4>
+                <h4 className="font-semibold text-muted-foreground mb-1">More integrations coming soon</h4>
                 <p className="text-sm text-muted-foreground">
-                  Novas APIs serão adicionadas conforme necessário para expandir as funcionalidades
+                  New APIs will be added as needed to expand functionality
                 </p>
               </div>
             </CardContent>

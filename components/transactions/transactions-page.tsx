@@ -42,134 +42,134 @@ const mockTransactions: Transaction[] = [
   {
     id: "1",
     date: "2024-01-15T14:30:00Z",
-    description: "Transferência PIX - João Silva",
+    description: "PIX Transfer - João Silva",
     amount: -250.0,
     type: "debit",
-    category: "Transferência",
+    category: "Transfer",
     paymentMethod: "pix",
     bankId: "1",
     bankName: "Nubank",
-    accountName: "Nu Conta",
+    accountName: "Nu Account",
     merchant: "João Silva",
   },
   {
     id: "2",
     date: "2024-01-15T12:15:00Z",
-    description: "Salário - Empresa XYZ",
+    description: "Salary - Company XYZ",
     amount: 5500.0,
     type: "credit",
-    category: "Salário",
+    category: "Salary",
     paymentMethod: "transfer",
     bankId: "1",
     bankName: "Nubank",
-    accountName: "Nu Conta",
-    merchant: "Empresa XYZ",
+    accountName: "Nu Account",
+    merchant: "Company XYZ",
   },
   {
     id: "3",
     date: "2024-01-15T10:45:00Z",
-    description: "Uber - Corrida",
+    description: "Uber - Ride",
     amount: -18.5,
     type: "debit",
-    category: "Transporte",
+    category: "Transport",
     paymentMethod: "credit_card",
     bankId: "1",
     bankName: "Nubank",
-    accountName: "Cartão de Crédito",
+    accountName: "Credit Card",
     merchant: "Uber",
     location: "São Paulo, SP",
   },
   {
     id: "4",
     date: "2024-01-14T19:20:00Z",
-    description: "iFood - Jantar",
+    description: "iFood - Dinner",
     amount: -45.9,
     type: "debit",
-    category: "Alimentação",
+    category: "Food",
     paymentMethod: "credit_card",
     bankId: "1",
     bankName: "Nubank",
-    accountName: "Cartão de Crédito",
+    accountName: "Credit Card",
     merchant: "iFood",
   },
   {
     id: "5",
     date: "2024-01-14T16:30:00Z",
-    description: "Posto Shell - Combustível",
+    description: "Shell Gas Station - Fuel",
     amount: -120.0,
     type: "debit",
-    category: "Combustível",
+    category: "Fuel",
     paymentMethod: "debit_card",
     bankId: "2",
     bankName: "Itaú",
-    accountName: "Conta Corrente",
-    merchant: "Posto Shell",
+    accountName: "Checking Account",
+    merchant: "Shell Gas Station",
     location: "São Paulo, SP",
   },
   {
     id: "6",
     date: "2024-01-14T14:15:00Z",
-    description: "Mercado Pão de Açúcar",
+    description: "Pão de Açúcar Market",
     amount: -89.75,
     type: "debit",
-    category: "Supermercado",
+    category: "Supermarket",
     paymentMethod: "debit_card",
     bankId: "2",
     bankName: "Itaú",
-    accountName: "Conta Corrente",
+    accountName: "Checking Account",
     merchant: "Pão de Açúcar",
   },
   {
     id: "7",
     date: "2024-01-13T11:00:00Z",
-    description: "Starbucks - Café",
+    description: "Starbucks - Coffee",
     amount: -15.9,
     type: "debit",
-    category: "Alimentação",
+    category: "Food",
     paymentMethod: "credit_card",
     bankId: "1",
     bankName: "Nubank",
-    accountName: "Cartão de Crédito",
+    accountName: "Credit Card",
     merchant: "Starbucks",
     location: "São Paulo, SP",
   },
   {
     id: "8",
     date: "2024-01-13T09:30:00Z",
-    description: "Conta de Luz - ENEL",
+    description: "Electricity Bill - ENEL",
     amount: -245.0,
     type: "debit",
-    category: "Utilidades",
+    category: "Utilities",
     paymentMethod: "boleto",
     bankId: "2",
     bankName: "Itaú",
-    accountName: "Conta Corrente",
+    accountName: "Checking Account",
     merchant: "ENEL",
   },
   {
     id: "9",
     date: "2024-01-12T15:45:00Z",
-    description: "Freelance - Cliente ABC",
+    description: "Freelance - Client ABC",
     amount: 1200.0,
     type: "credit",
     category: "Freelance",
     paymentMethod: "pix",
     bankId: "3",
     bankName: "Banco do Brasil",
-    accountName: "Conta Corrente",
-    merchant: "Cliente ABC",
+    accountName: "Checking Account",
+    merchant: "Client ABC",
   },
   {
     id: "10",
     date: "2024-01-12T13:20:00Z",
-    description: "Netflix - Assinatura",
+    description: "Netflix - Subscription",
     amount: -29.9,
     type: "debit",
-    category: "Entretenimento",
+    category: "Entertainment",
     paymentMethod: "credit_card",
     bankId: "1",
     bankName: "Nubank",
-    accountName: "Cartão de Crédito",
+    accountName: "Credit Card",
     merchant: "Netflix",
   },
 ]
@@ -240,15 +240,15 @@ export function TransactionsPage() {
       case "pix":
         return "PIX"
       case "credit_card":
-        return "Cartão de Crédito"
+        return "Credit Card"
       case "debit_card":
-        return "Cartão de Débito"
+        return "Debit Card"
       case "transfer":
-        return "Transferência"
+        return "Transfer"
       case "boleto":
         return "Boleto"
       case "cash":
-        return "Dinheiro"
+        return "Cash"
       default:
         return method
     }
@@ -256,13 +256,13 @@ export function TransactionsPage() {
 
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
-      case "transporte":
+      case "transport":
         return <Car className="h-4 w-4" />
-      case "alimentação":
+      case "food":
         return <Coffee className="h-4 w-4" />
-      case "supermercado":
+      case "supermarket":
         return <ShoppingCart className="h-4 w-4" />
-      case "utilidades":
+      case "utilities":
         return <Home className="h-4 w-4" />
       default:
         return <Building2 className="h-4 w-4" />
@@ -270,14 +270,14 @@ export function TransactionsPage() {
   }
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "BRL",
+      currency: "USD",
     }).format(Math.abs(value))
   }
 
   const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat("pt-BR", {
+    return new Intl.DateTimeFormat("en-US", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -300,33 +300,33 @@ export function TransactionsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Entradas</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Income</CardTitle>
                 <ArrowDownLeft className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold font-montserrat text-green-600">{formatCurrency(totalCredit)}</div>
                 <p className="text-xs text-muted-foreground">
-                  {filteredTransactions.filter((t) => t.type === "credit").length} transações
+                  {filteredTransactions.filter((t) => t.type === "credit").length} transactions
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Saídas</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Expenses</CardTitle>
                 <ArrowUpRight className="h-4 w-4 text-red-600" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold font-montserrat text-red-600">{formatCurrency(totalDebit)}</div>
                 <p className="text-xs text-muted-foreground">
-                  {filteredTransactions.filter((t) => t.type === "debit").length} transações
+                  {filteredTransactions.filter((t) => t.type === "debit").length} transactions
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Líquido</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Net Balance</CardTitle>
                 <Building2 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -335,7 +335,7 @@ export function TransactionsPage() {
                 >
                   {formatCurrency(netAmount)}
                 </div>
-                <p className="text-xs text-muted-foreground">{filteredTransactions.length} transações filtradas</p>
+                <p className="text-xs text-muted-foreground">{filteredTransactions.length} filtered transactions</p>
               </CardContent>
             </Card>
           </div>
@@ -345,17 +345,17 @@ export function TransactionsPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="font-montserrat">Filtros e Busca</CardTitle>
-                  <CardDescription>Encontre transações específicas</CardDescription>
+                  <CardTitle className="font-montserrat">Filters and Search</CardTitle>
+                  <CardDescription>Find specific transactions</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
                     <Filter className="h-4 w-4 mr-2" />
-                    {showFilters ? "Ocultar" : "Mostrar"} Filtros
+                    {showFilters ? "Hide" : "Show"} Filters
                   </Button>
                   <Button variant="outline" size="sm">
                     <Download className="h-4 w-4 mr-2" />
-                    Exportar
+                    Export
                   </Button>
                 </div>
               </div>
@@ -365,7 +365,7 @@ export function TransactionsPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por descrição, comerciante ou categoria..."
+                  placeholder="Search by description, merchant or category..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -395,9 +395,9 @@ export function TransactionsPage() {
           {/* Transactions List */}
           <Card>
             <CardHeader>
-              <CardTitle className="font-montserrat">Transações</CardTitle>
+              <CardTitle className="font-montserrat">Transactions</CardTitle>
               <CardDescription>
-                {filteredTransactions.length} de {mockTransactions.length} transações
+                {filteredTransactions.length} of {mockTransactions.length} transactions
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -468,9 +468,9 @@ export function TransactionsPage() {
                 {filteredTransactions.length === 0 && (
                   <div className="text-center py-12">
                     <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                    <h3 className="font-semibold mb-2">Nenhuma transação encontrada</h3>
+                    <h3 className="font-semibold mb-2">No transactions found</h3>
                     <p className="text-muted-foreground">
-                      Tente ajustar os filtros ou termo de busca para encontrar transações
+                      Try adjusting the filters or search term to find transactions
                     </p>
                   </div>
                 )}

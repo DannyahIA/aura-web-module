@@ -55,8 +55,8 @@ export function AddBankDialog({ open, onOpenChange, onAddBank }: AddBankDialogPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-montserrat">Adicionar Banco</DialogTitle>
-          <DialogDescription>Escolha um banco da lista ou adicione um personalizado</DialogDescription>
+          <DialogTitle className="font-montserrat">Add Bank</DialogTitle>
+          <DialogDescription>Choose a bank from the list or add a custom one</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -89,17 +89,17 @@ export function AddBankDialog({ open, onOpenChange, onAddBank }: AddBankDialogPr
 
               <div className="text-center">
                 <Button type="button" variant="link" onClick={() => setIsCustom(true)}>
-                  Não encontrou seu banco? Adicionar personalizado
+                  Didn't find your bank? Add custom
                 </Button>
               </div>
             </>
           ) : (
             <>
               <div className="space-y-2">
-                <Label htmlFor="bank-name">Nome do Banco</Label>
+                <Label htmlFor="bank-name">Bank Name</Label>
                 <Input
                   id="bank-name"
-                  placeholder="Ex: Meu Banco"
+                  placeholder="Ex: My Bank"
                   value={customBank.name}
                   onChange={(e) => setCustomBank({ ...customBank, name: e.target.value })}
                   required
@@ -107,7 +107,7 @@ export function AddBankDialog({ open, onOpenChange, onAddBank }: AddBankDialogPr
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="bank-color">Cor do Banco</Label>
+                <Label htmlFor="bank-color">Bank Color</Label>
                 <div className="flex items-center gap-2">
                   <input
                     id="bank-color"
@@ -126,7 +126,7 @@ export function AddBankDialog({ open, onOpenChange, onAddBank }: AddBankDialogPr
 
               <div className="text-center">
                 <Button type="button" variant="link" onClick={() => setIsCustom(false)}>
-                  Voltar para lista de bancos
+                  Back to bank list
                 </Button>
               </div>
             </>
@@ -134,11 +134,11 @@ export function AddBankDialog({ open, onOpenChange, onAddBank }: AddBankDialogPr
 
           <div className="flex gap-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
-              Cancelar
+              Cancel
             </Button>
             <Button type="submit" disabled={!selectedBank && (!isCustom || !customBank.name)} className="flex-1">
               <Building2 className="h-4 w-4 mr-2" />
-              Adicionar
+              Add
             </Button>
           </div>
         </form>

@@ -2,41 +2,25 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts/auth-context"
 import {
-  LayoutDashboard,
-  CreditCard,
-  Building2,
-  Calendar,
-  Home,
-  User,
-  Settings,
-  X,
-  LogOut,
-  Receipt,
-} from "lucide-react"
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarSeparator,
+} from "@/components/ui/sidebar"
+import { LogOut, User, Settings } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { navigationItems, userNavigationItems } from "@/lib/mock-data"
+import { Logo } from "../ui/logo"
 
-interface SidebarProps {
-  sidebarOpen: boolean
-  setSidebarOpen: (open: boolean) => void
-  currentPage?: string
-}
-
-export function Sidebar({ sidebarOpen, setSidebarOpen, currentPage }: SidebarProps) {
+export function AppSidebar() {
   const { user, logout } = useAuth()
   const pathname = usePathname()
-
-  const navigationItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/", key: "dashboard" },
-    { icon: Receipt, label: "Transactions", href: "/transactions", key: "transactions" },
-    { icon: CreditCard, label: "Finances", href: "/finances", key: "finances" },
-    { icon: Building2, label: "Banks", href: "/banks", key: "banks" },
-    { icon: Calendar, label: "Calendar", href: "/calendar", key: "calendar" },
-    { icon: Home, label: "Automation", href: "/automation", key: "automation" },
-    { icon: User, label: "Profile", href: "/profile", key: "profile" },
-    { icon: Settings, label: "Settings", href: "/settings", key: "settings" },
-  ]
 
   const isActive = (href: string) => {
     if (href === "/") {
@@ -46,52 +30,69 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPage }: SidebarPro
   }
 
   return (
-    <aside
-      className={`
-        fixed top-0 left-0 z-50 h-full w-64 bg-sidebar border-r border-sidebar-border transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0
-      `}
-    >
-      <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between p-6 border-b border-sidebar-border">
-          <h1 className="text-xl font-black font-montserrat text-sidebar-foreground">AuraHub</h1>
-          <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
-            <X className="h-4 w-4" />
-          </Button>
+    <Sidebar>
+      <SidebarHeader>
+        <div className="flex items-center gap-2">
+          <Logo />
         </div>
+      </SidebarHeader>
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <SidebarContent>
+        <SidebarMenu>
           {navigationItems.map((item) => (
-            <Link key={item.key} href={item.href}>
-              <Button
-                variant={isActive(item.href) ? "default" : "ghost"}
-                className="w-full justify-start gap-3 font-medium"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Button>
-            </Link>
+            <SidebarMenuItem key={item.key}>
+              <Link href={item.href} passHref>
+                <SidebarMenuButton
+                  isActive={isActive(item.href)}
+                  tooltip={item.label}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
           ))}
-        </nav>
+        </SidebarMenu>
+      </SidebarContent>
 
-        <div className="p-4 border-t border-sidebar-border">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-            </div>
+      <SidebarFooter>
+        <SidebarSeparator />
+        <div className="flex items-center gap-3 p-2">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={user?.avatar || ""} alt={user?.name || ""} />
+            <AvatarFallback>
+              <User />
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">{user?.name}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
-          <Button variant="ghost" size="sm" className="w-full justify-start gap-2" onClick={logout}>
-            <LogOut className="h-4 w-4" />
-            Sair
-          </Button>
         </div>
-      </div>
-    </aside>
+
+        <SidebarMenu>
+          {userNavigationItems.map((item) => (
+            <SidebarMenuItem key={item.key}>
+              <Link href={item.href} passHref>
+                <SidebarMenuButton
+                  isActive={isActive(item.href)}
+                  tooltip={item.label}
+                  variant="ghost"
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+          ))}
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={logout} variant="ghost">
+              <LogOut className="h-5 w-5" />
+              <span>Sign out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   )
 }

@@ -13,49 +13,49 @@ import { usePageConfig } from "@/hooks/use-page-config"
 const mockEvents = [
   {
     id: "1",
-    title: "Reunião de trabalho",
+    title: "Work Meeting",
     date: "2024-01-15",
     time: "14:00",
     type: "work",
-    calendar: "Trabalho",
+    calendar: "Work",
     color: "blue",
   },
   {
     id: "2",
-    title: "Pagamento Netflix",
+    title: "Netflix Payment",
     date: "2024-01-15",
     time: "00:00",
     type: "bill",
-    calendar: "Financeiro",
+    calendar: "Financial",
     color: "red",
     amount: 29.9,
   },
   {
     id: "3",
-    title: "Compra Uber",
+    title: "Uber Purchase",
     date: "2024-01-14",
     time: "18:30",
     type: "expense",
-    calendar: "Financeiro",
+    calendar: "Financial",
     color: "orange",
     amount: 25.5,
   },
   {
     id: "4",
-    title: "Consulta médica",
+    title: "Medical Appointment",
     date: "2024-01-16",
     time: "10:00",
     type: "personal",
-    calendar: "Pessoal",
+    calendar: "Personal",
     color: "green",
   },
   {
     id: "5",
-    title: "Pagamento cartão de crédito",
+    title: "Credit Card Payment",
     date: "2024-01-20",
     time: "00:00",
     type: "bill",
-    calendar: "Financeiro",
+    calendar: "Financial",
     color: "red",
     amount: 1250.0,
   },
@@ -71,7 +71,6 @@ export function CalendarPage() {
   })
   const [showAddDialog, setShowAddDialog] = useState(false)
 
-  // Configure page information
   usePageConfig({
     page: "calendar",
     title: "Calendar",
@@ -122,11 +121,10 @@ export function CalendarPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <CalendarDays className="h-8 w-8 text-cyan-500" />
-          <h1 className="text-3xl font-bold text-gray-900">Calendário</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Calendar</h1>
         </div>
         <Button onClick={() => setShowAddDialog(true)} className="bg-cyan-500 hover:bg-cyan-600">
           <Plus className="h-4 w-4 mr-2" />
@@ -134,7 +132,6 @@ export function CalendarPage() {
         </Button>
       </div>
 
-      {/* Calendar Navigation */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -157,7 +154,6 @@ export function CalendarPage() {
         </CardContent>
       </Card>
 
-      {/* Upcoming Events */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -176,14 +172,14 @@ export function CalendarPage() {
                       <div>
                         <p className="font-medium text-gray-900">{event.title}</p>
                         <p className="text-sm text-gray-500">
-                          {new Date(event.date).toLocaleDateString("pt-BR")} às {event.time}
+                          {new Date(event.date).toLocaleDateString("en-US")} at {event.time}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {event.amount && (
                         <Badge variant="outline" className="text-red-600">
-                          R$ {event.amount.toFixed(2)}
+                          ${event.amount.toFixed(2)}
                         </Badge>
                       )}
                       <Badge variant="secondary">{event.calendar}</Badge>
@@ -196,30 +192,30 @@ export function CalendarPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Resumo Financeiro do Mês</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900">Monthly Financial Summary</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
                 <div>
-                  <p className="font-medium text-red-900">Contas a Pagar</p>
-                  <p className="text-sm text-red-600">3 contas pendentes</p>
+                  <p className="font-medium text-red-900">Bills to Pay</p>
+                  <p className="text-sm text-red-600">3 pending bills</p>
                 </div>
-                <p className="text-lg font-bold text-red-600">R$ 1.309,90</p>
+                <p className="text-lg font-bold text-red-600">$1,309.90</p>
               </div>
               <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
                 <div>
-                  <p className="font-medium text-orange-900">Gastos do Mês</p>
-                  <p className="text-sm text-orange-600">15 transações</p>
+                  <p className="font-medium text-orange-900">Monthly Expenses</p>
+                  <p className="text-sm text-orange-600">15 transactions</p>
                 </div>
-                <p className="text-lg font-bold text-orange-600">R$ 2.450,30</p>
+                <p className="text-lg font-bold text-orange-600">$2,450.30</p>
               </div>
               <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                 <div>
-                  <p className="font-medium text-green-900">Receitas</p>
-                  <p className="text-sm text-green-600">Salário + extras</p>
+                  <p className="font-medium text-green-900">Income</p>
+                  <p className="text-sm text-green-600">Salary + extras</p>
                 </div>
-                <p className="text-lg font-bold text-green-600">R$ 8.500,00</p>
+                <p className="text-lg font-bold text-green-600">$8,500.00</p>
               </div>
             </div>
           </CardContent>

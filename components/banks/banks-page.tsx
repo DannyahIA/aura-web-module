@@ -31,7 +31,6 @@ export function BanksPage() {
   const [addAccountOpen, setAddAccountOpen] = useState(false)
   const [selectedBankId, setSelectedBankId] = useState<string>("")
 
-  // Configure page information
   usePageConfig({
     page: "banks",
     title: "Bank Management",
@@ -47,7 +46,7 @@ export function BanksPage() {
       accounts: [
         {
           id: "1-1",
-          name: "Nu Conta",
+          name: "Nu Account",
           type: "checking",
           balance: 2450.75,
           lastSync: "2024-01-15T10:30:00Z",
@@ -55,7 +54,7 @@ export function BanksPage() {
         },
         {
           id: "1-2",
-          name: "Nu Empresa",
+          name: "Nu Business",
           type: "checking",
           balance: 8920.5,
           lastSync: "2024-01-15T10:30:00Z",
@@ -63,7 +62,7 @@ export function BanksPage() {
         },
         {
           id: "1-3",
-          name: "Cartão de Crédito",
+          name: "Credit Card",
           type: "credit",
           balance: -1250.0,
           lastSync: "2024-01-15T10:30:00Z",
@@ -79,7 +78,7 @@ export function BanksPage() {
       accounts: [
         {
           id: "2-1",
-          name: "Conta Corrente",
+          name: "Checking Account",
           type: "checking",
           balance: 1580.25,
           lastSync: "2024-01-15T09:15:00Z",
@@ -87,7 +86,7 @@ export function BanksPage() {
         },
         {
           id: "2-2",
-          name: "Poupança",
+          name: "Savings",
           type: "savings",
           balance: 5200.0,
           lastSync: "2024-01-14T18:45:00Z",
@@ -103,7 +102,7 @@ export function BanksPage() {
       accounts: [
         {
           id: "3-1",
-          name: "Conta Corrente",
+          name: "Checking Account",
           type: "checking",
           balance: 750.8,
           lastSync: "2024-01-15T11:00:00Z",
@@ -158,7 +157,7 @@ export function BanksPage() {
       ),
     )
 
-    // Simular sincronização
+    // Simulate sync
     setTimeout(() => {
       setBanks(
         banks.map((bank) =>
@@ -214,13 +213,13 @@ export function BanksPage() {
   const getStatusText = (status: BankAccount["status"]) => {
     switch (status) {
       case "connected":
-        return "Conectado"
+        return "Connected"
       case "disconnected":
-        return "Desconectado"
+        return "Disconnected"
       case "syncing":
-        return "Sincronizando"
+        return "Syncing"
       case "error":
-        return "Erro"
+        return "Error"
     }
   }
 
@@ -238,14 +237,14 @@ export function BanksPage() {
   }
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "BRL",
+      currency: "USD",
     }).format(value)
   }
 
   const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat("pt-BR", {
+    return new Intl.DateTimeFormat("en-US", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -271,22 +270,21 @@ export function BanksPage() {
 
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Total</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Balance</CardTitle>
                 <Building2 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold font-montserrat">{formatCurrency(totalBalance)}</div>
-                <p className="text-xs text-muted-foreground">Excluindo cartões de crédito</p>
+                <p className="text-xs text-muted-foreground">Excluding credit cards</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Contas Conectadas</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Connected Accounts</CardTitle>
                 <Wifi className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -294,36 +292,34 @@ export function BanksPage() {
                   {connectedAccounts}/{totalAccounts}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {Math.round((connectedAccounts / totalAccounts) * 100)}% sincronizadas
+                  {totalAccounts > 0 ? Math.round((connectedAccounts / totalAccounts) * 100) : 0}% synced
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Bancos</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Banks</CardTitle>
                 <Building2 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold font-montserrat">{banks.length}</div>
-                <p className="text-xs text-muted-foreground">Instituições conectadas</p>
+                <p className="text-xs text-muted-foreground">Connected institutions</p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Add Bank Button */}
           <div className="flex justify-between items-center">
             <div>
-              <h3 className="text-lg font-semibold font-montserrat">Seus Bancos</h3>
-              <p className="text-sm text-muted-foreground">Gerencie suas instituições financeiras e contas</p>
+              <h3 className="text-lg font-semibold font-montserrat">Your Banks</h3>
+              <p className="text-sm text-muted-foreground">Manage your financial institutions and accounts</p>
             </div>
             <Button onClick={() => setAddBankOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Adicionar Banco
+              Add Bank
             </Button>
           </div>
 
-          {/* Banks List */}
           <div className="space-y-6">
             {banks.map((bank) => (
               <Card key={bank.id}>
@@ -338,7 +334,7 @@ export function BanksPage() {
                       </div>
                       <div>
                         <CardTitle className="font-montserrat">{bank.name}</CardTitle>
-                        <CardDescription>{bank.accounts.length} conta(s) configurada(s)</CardDescription>
+                        <CardDescription>{bank.accounts.length} account(s) configured</CardDescription>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -351,7 +347,7 @@ export function BanksPage() {
                         }}
                       >
                         <Plus className="h-4 w-4 mr-2" />
-                        Adicionar Conta
+                        Add Account
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => handleRemoveBank(bank.id)}>
                         <Trash2 className="h-4 w-4" />
@@ -373,10 +369,10 @@ export function BanksPage() {
                               <p className="font-medium">{account.name}</p>
                               <p className="text-sm text-muted-foreground">
                                 {account.type === "checking"
-                                  ? "Conta Corrente"
+                                  ? "Checking Account"
                                   : account.type === "savings"
-                                    ? "Poupança"
-                                    : "Cartão de Crédito"}
+                                    ? "Savings"
+                                    : "Credit Card"}
                               </p>
                             </div>
                           </div>
@@ -385,7 +381,7 @@ export function BanksPage() {
                         <div className="flex items-center gap-4">
                           <div className="text-right">
                             <p className="font-semibold">{formatCurrency(account.balance)}</p>
-                            <p className="text-xs text-muted-foreground">Última sync: {formatDate(account.lastSync)}</p>
+                            <p className="text-xs text-muted-foreground">Last sync: {formatDate(account.lastSync)}</p>
                           </div>
 
                           <div className="flex items-center gap-2">
@@ -408,8 +404,8 @@ export function BanksPage() {
                     {bank.accounts.length === 0 && (
                       <div className="text-center py-8 text-muted-foreground">
                         <Building2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p>Nenhuma conta configurada</p>
-                        <p className="text-sm">Adicione uma conta para começar a sincronizar</p>
+                        <p>No accounts configured</p>
+                        <p className="text-sm">Add an account to start syncing</p>
                       </div>
                     )}
                   </div>
@@ -421,13 +417,13 @@ export function BanksPage() {
               <Card>
                 <CardContent className="text-center py-12">
                   <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <h3 className="font-semibold mb-2">Nenhum banco configurado</h3>
+                  <h3 className="font-semibold mb-2">No banks configured</h3>
                   <p className="text-muted-foreground mb-4">
-                    Adicione seu primeiro banco para começar a gerenciar suas finanças
+                    Add your first bank to start managing your finances
                   </p>
                   <Button onClick={() => setAddBankOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Adicionar Primeiro Banco
+                    Add First Bank
                   </Button>
                 </CardContent>
               </Card>

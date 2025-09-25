@@ -23,11 +23,11 @@ interface TransactionFiltersProps {
 
 const paymentMethods = [
   { value: "pix", label: "PIX" },
-  { value: "credit_card", label: "Cartão de Crédito" },
-  { value: "debit_card", label: "Cartão de Débito" },
-  { value: "transfer", label: "Transferência" },
+  { value: "credit_card", label: "Credit Card" },
+  { value: "debit_card", label: "Debit Card" },
+  { value: "transfer", label: "Transfer" },
   { value: "boleto", label: "Boleto" },
-  { value: "cash", label: "Dinheiro" },
+  { value: "cash", label: "Cash" },
 ]
 
 export function TransactionFilters({
@@ -63,13 +63,13 @@ export function TransactionFilters({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
       <div className="space-y-2">
-        <Label htmlFor="bank-filter">Banco</Label>
+        <Label htmlFor="bank-filter">Bank</Label>
         <Select value={selectedBank} onValueChange={setSelectedBank}>
           <SelectTrigger>
-            <SelectValue placeholder="Todos os bancos" />
+            <SelectValue placeholder="All banks" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os bancos</SelectItem>
+            <SelectItem value="all">All banks</SelectItem>
             {banks.map((bank) => (
               <SelectItem key={bank.id} value={bank.id}>
                 {bank.name}
@@ -80,13 +80,13 @@ export function TransactionFilters({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="category-filter">Categoria</Label>
+        <Label htmlFor="category-filter">Category</Label>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
           <SelectTrigger>
-            <SelectValue placeholder="Todas as categorias" />
+            <SelectValue placeholder="All categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todas as categorias</SelectItem>
+            <SelectItem value="all">All categories</SelectItem>
             {categories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}
@@ -97,13 +97,13 @@ export function TransactionFilters({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="payment-method-filter">Método de Pagamento</Label>
+        <Label htmlFor="payment-method-filter">Payment Method</Label>
         <Select value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
           <SelectTrigger>
-            <SelectValue placeholder="Todos os métodos" />
+            <SelectValue placeholder="All methods" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os métodos</SelectItem>
+            <SelectItem value="all">All methods</SelectItem>
             {paymentMethods.map((method) => (
               <SelectItem key={method.value} value={method.value}>
                 {method.label}
@@ -114,21 +114,21 @@ export function TransactionFilters({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="type-filter">Tipo</Label>
+        <Label htmlFor="type-filter">Type</Label>
         <Select value={selectedType} onValueChange={setSelectedType}>
           <SelectTrigger>
-            <SelectValue placeholder="Todos os tipos" />
+            <SelectValue placeholder="All types" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os tipos</SelectItem>
-            <SelectItem value="credit">Entrada</SelectItem>
-            <SelectItem value="debit">Saída</SelectItem>
+            <SelectItem value="all">All types</SelectItem>
+            <SelectItem value="credit">Income</SelectItem>
+            <SelectItem value="debit">Expense</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="date-from">Data Inicial</Label>
+        <Label htmlFor="date-from">Start Date</Label>
         <Input
           id="date-from"
           type="date"
@@ -138,7 +138,7 @@ export function TransactionFilters({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="date-to">Data Final</Label>
+        <Label htmlFor="date-to">End Date</Label>
         <Input
           id="date-to"
           type="date"
@@ -151,7 +151,7 @@ export function TransactionFilters({
         <div className="md:col-span-2 lg:col-span-3 flex justify-center">
           <Button variant="outline" onClick={clearAllFilters} className="w-full md:w-auto bg-transparent">
             <X className="h-4 w-4 mr-2" />
-            Limpar Filtros
+            Clear Filters
           </Button>
         </div>
       )}

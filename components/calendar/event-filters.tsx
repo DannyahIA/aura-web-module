@@ -31,7 +31,7 @@ export function EventFilters({ filters, onFiltersChange }: EventFiltersProps) {
           onClick={() => toggleFilter("work")}
           className={filters.work ? "bg-blue-500 hover:bg-blue-600" : ""}
         >
-          Trabalho
+          Work
         </Button>
         <Button
           variant={filters.personal ? "default" : "outline"}
@@ -39,7 +39,7 @@ export function EventFilters({ filters, onFiltersChange }: EventFiltersProps) {
           onClick={() => toggleFilter("personal")}
           className={filters.personal ? "bg-green-500 hover:bg-green-600" : ""}
         >
-          Pessoal
+          Personal
         </Button>
         <Button
           variant={filters.bills ? "default" : "outline"}
@@ -47,7 +47,7 @@ export function EventFilters({ filters, onFiltersChange }: EventFiltersProps) {
           onClick={() => toggleFilter("bills")}
           className={filters.bills ? "bg-red-500 hover:bg-red-600" : ""}
         >
-          Contas
+          Bills
         </Button>
         <Button
           variant={filters.expenses ? "default" : "outline"}
@@ -55,7 +55,7 @@ export function EventFilters({ filters, onFiltersChange }: EventFiltersProps) {
           onClick={() => toggleFilter("expenses")}
           className={filters.expenses ? "bg-orange-500 hover:bg-orange-600" : ""}
         >
-          Gastos
+          Expenses
         </Button>
       </div>
     </div>

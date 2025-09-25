@@ -5,16 +5,16 @@ import { Button } from "@/components/ui/button"
 
 export function HomeAutomationWidget() {
   const homeDevices = [
-    { name: "Ar Condicionado", status: "off", room: "Sala" },
-    { name: "Luzes Principais", status: "on", room: "Casa" },
-    { name: "Computador", status: "on", room: "Escritório" },
+    { name: "Air Conditioner", status: "off", room: "Living Room" },
+    { name: "Main Lights", status: "on", room: "House" },
+    { name: "Computer", status: "on", room: "Office" },
   ]
 
   return (
     <>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-montserrat">Controle da Casa</CardTitle>
-        <CardDescription className="text-xs">Status dos dispositivos conectados</CardDescription>
+        <CardTitle className="text-base font-montserrat">Home Control</CardTitle>
+        <CardDescription className="text-xs">Status of connected devices</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {homeDevices.map((device, index) => (
@@ -27,7 +27,7 @@ export function HomeAutomationWidget() {
               </div>
             </div>
             <Button variant={device.status === "on" ? "default" : "outline"} size="sm" className="h-7 text-xs">
-              {device.status === "on" ? "Desligar" : "Ligar"}
+              {device.status === "on" ? "Turn Off" : "Turn On"}
             </Button>
           </div>
         ))}

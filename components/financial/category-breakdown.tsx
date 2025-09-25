@@ -26,9 +26,9 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
   }))
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "BRL",
+      currency: "USD",
     }).format(value)
   }
 
@@ -36,8 +36,8 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <CardHeader>
-          <CardTitle className="font-montserrat">Gastos por Categoria</CardTitle>
-          <CardDescription>Distribuição dos seus gastos do mês</CardDescription>
+          <CardTitle className="font-montserrat">Spending by Category</CardTitle>
+          <CardDescription>Distribution of your monthly spending</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -64,8 +64,8 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-montserrat">Detalhamento por Categoria</CardTitle>
-          <CardDescription>Valores e percentuais detalhados</CardDescription>
+          <CardTitle className="font-montserrat">Category Breakdown</CardTitle>
+          <CardDescription>Detailed values and percentages</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -77,7 +77,7 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
                     <div className="w-4 h-4 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                     <div>
                       <p className="font-medium">{category.name}</p>
-                      <p className="text-sm text-muted-foreground">{category.percentage}% do total</p>
+                      <p className="text-sm text-muted-foreground">{category.percentage}% of total</p>
                     </div>
                   </div>
                   <div className="text-right">
