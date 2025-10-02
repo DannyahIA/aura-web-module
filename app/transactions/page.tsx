@@ -1,8 +1,8 @@
 "use client"
 
 import { useAuth } from "@/contexts/auth-context"
-import { TransactionsPage } from "@/components/transactions/transactions-page"
 import { LoginPage } from "@/components/auth/login-page"
+import { TransactionsPage } from "@/components/transactions"
 
 export default function TransacoesPage() {
   const { user, isLoading } = useAuth()

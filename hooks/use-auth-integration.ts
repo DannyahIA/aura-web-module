@@ -1,4 +1,5 @@
 import { useSession } from "next-auth/react"
+import { env } from "process"
 import { useEffect, useState } from "react"
 
 export function useAuthIntegration() {
@@ -20,7 +21,7 @@ export function useAuthIntegration() {
   const syncWithBackend = async (googleUser: any) => {
     try {
       // Verificar se o usuário existe no backend
-      const response = await fetch(env.GRAPHQL_ENDPOINT + '/graphql', {
+      const response = await fetch(process.env.GRAPHQL_ENDPOINT + '/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
