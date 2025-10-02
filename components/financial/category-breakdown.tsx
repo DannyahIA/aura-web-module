@@ -1,30 +1,15 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
-
-interface MonthlyData {
-  month: string
-  year: number
-  totalSpent: number
-  totalIncome: number
-  categories: Record<string, number>
-  merchants: Record<string, number>
-}
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts"
+import { CategoryData, MerchantData } from "@/hooks/use-financial-analysis"
 
 interface CategoryBreakdownProps {
-  data: MonthlyData
+  categories: CategoryData[]
+  merchants: MerchantData[]
 }
 
-const COLORS = ["#164e63", "#d97706", "#10b981", "#ef4444", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"]
-
-export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
-  const chartData = Object.entries(data.categories).map(([name, value]) => ({
-    name,
-    value,
-    percentage: ((value / data.totalSpent) * 100).toFixed(1),
-  }))
-
+export function CategoryBreakdown({ categories, merchants }: CategoryBreakdownProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -32,60 +17,156 @@ export function CategoryBreakdown({ data }: CategoryBreakdownProps) {
     }).format(value)
   }
 
+  const categoryChartData = categories.slice(0, 8).map(category => ({
+    name: category.name,
+    value: category.amount,
+    percentage: category.percentage.toFixed(1),
+  }))
+
+  const merchantChartData = merchants.slice(0, 10).map(merchant => ({
+    name: merchant.name,
+    amount: merchant.amount,
+    percentage: merchant.percentage.toFixed(1),
+  }))
+
+  if (categories.length === 0 && merchants.length === 0) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Spending by Category</CardTitle>
+            <CardDescription>Distribution of your spending by category</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex min-h-[300px] items-center justify-center text-muted-foreground">
+              No category data available
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Merchants</CardTitle>
+            <CardDescription>Your most frequent spending destinations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex min-h-[300px] items-center justify-center text-muted-foreground">
+              No merchant data available
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Categories Pie Chart */}
       <Card>
         <CardHeader>
-          <CardTitle className="font-montserrat">Spending by Category</CardTitle>
-          <CardDescription>Distribution of your monthly spending</CardDescription>
+          <CardTitle>Spending by Category</CardTitle>
+          <CardDescription>Distribution of your spending by category</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percentage }) => `${name}: ${percentage}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          {categories.length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={categoryChartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percentage }) => `${name}: ${percentage}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {categoryChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={categories[index]?.color || '#8884d8'} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                </PieChart>
+              </ResponsiveContainer>
+              
+              {/* Category List */}
+              <div className="mt-4 space-y-2">
+                {categories.slice(0, 5).map((category, index) => (
+                  <div key={category.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: category.color }}
+                      />
+                      <span className="text-sm font-medium">{category.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium">{formatCurrency(category.amount)}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {category.percentage.toFixed(1)}% • {category.transactionCount} transactions
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </Pie>
-              <Tooltip formatter={(value: number) => formatCurrency(value)} />
-            </PieChart>
-          </ResponsiveContainer>
+              </div>
+            </>
+          ) : (
+            <div className="flex min-h-[300px] items-center justify-center text-muted-foreground">
+              No category data available
+            </div>
+          )}
         </CardContent>
       </Card>
 
+      {/* Top Merchants */}
       <Card>
         <CardHeader>
-          <CardTitle className="font-montserrat">Category Breakdown</CardTitle>
-          <CardDescription>Detailed values and percentages</CardDescription>
+          <CardTitle>Top Merchants</CardTitle>
+          <CardDescription>Your most frequent spending destinations</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {chartData
-              .sort((a, b) => b.value - a.value)
-              .map((category, index) => (
-                <div key={category.name} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                    <div>
-                      <p className="font-medium">{category.name}</p>
-                      <p className="text-sm text-muted-foreground">{category.percentage}% of total</p>
+          {merchants.length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={merchantChartData}
+                  layout="horizontal"
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" tickFormatter={formatCurrency} />
+                  <YAxis dataKey="name" type="category" width={80} />
+                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Bar dataKey="amount" fill="#3b82f6" />
+                </BarChart>
+              </ResponsiveContainer>
+              
+              {/* Merchant List */}
+              <div className="mt-4 space-y-2">
+                {merchants.slice(0, 5).map((merchant, index) => (
+                  <div key={merchant.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600">
+                        {index + 1}
+                      </div>
+                      <span className="text-sm font-medium">{merchant.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium">{formatCurrency(merchant.amount)}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {merchant.percentage.toFixed(1)}% • {merchant.transactionCount} transactions
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold">{formatCurrency(category.value)}</p>
-                  </div>
-                </div>
-              ))}
-          </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex min-h-[300px] items-center justify-center text-muted-foreground">
+              No merchant data available
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

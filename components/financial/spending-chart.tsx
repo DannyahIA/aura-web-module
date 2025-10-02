@@ -2,27 +2,19 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-
-interface MonthlyData {
-  month: string
-  year: number
-  totalSpent: number
-  totalIncome: number
-  categories: Record<string, number>
-  merchants: Record<string, number>
-}
+import { MonthlyFinancialData } from "@/hooks/use-financial-analysis"
 
 interface SpendingChartProps {
-  data: MonthlyData[]
+  data: MonthlyFinancialData[]
 }
 
 export function SpendingChart({ data }: SpendingChartProps) {
   const chartData = data.map((item) => ({
-    month: item.month,
+    month: `${item.month.slice(0, 3)} ${item.year}`,
     expenses: item.totalSpent,
     income: item.totalIncome,
-    savings: item.totalIncome - item.totalSpent,
-  }))
+    savings: item.netIncome,
+  })).reverse() // Show oldest to newest
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -32,10 +24,26 @@ export function SpendingChart({ data }: SpendingChartProps) {
     }).format(value)
   }
 
+  if (data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Monthly Evolution</CardTitle>
+          <CardDescription>Comparison of income, expenses, and savings</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex min-h-[300px] items-center justify-center text-muted-foreground">
+            No data available for the selected period
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-montserrat">Monthly Evolution</CardTitle>
+        <CardTitle>Monthly Evolution</CardTitle>
         <CardDescription>Comparison of income, expenses, and savings</CardDescription>
       </CardHeader>
       <CardContent>

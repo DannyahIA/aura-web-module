@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +8,12 @@ import { FinancialFilters } from "@/components/financial/financial-filters"
 import { SpendingChart } from "@/components/financial/spending-chart"
 import { CategoryBreakdown } from "@/components/financial/category-breakdown"
 import { MonthlyComparison } from "@/components/financial/monthly-comparison"
+import { EvolutionLineChart } from "@/components/financial/evolution-line-chart"
+import { ComparativeBarChart } from "@/components/financial/comparative-bar-chart"
+import { StackedAreaChart } from "@/components/financial/stacked-area-chart"
+import { WaterfallChart } from "@/components/financial/waterfall-chart"
+import { FinancialHealthRadar } from "@/components/financial/financial-health-radar"
+import { FinancialGoalsTracker } from "@/components/financial/financial-goals-tracker"
 import { EmptyAnalytics } from "@/components/ui/empty-states"
 import {
   TrendingUp,
@@ -20,129 +26,43 @@ import {
   BarChart3,
   PieChart,
   LineChart,
+  RefreshCw,
+  Activity,
+  Radar,
+  BarChart2,
+  Zap,
 } from "lucide-react"
 import { usePageConfig } from "@/hooks/use-page-config"
-
-interface MonthlyData {
-  month: string
-  year: number
-  totalSpent: number
-  totalIncome: number
-  categories: Record<string, number>
-  merchants: Record<string, number>
-}
-
-const mockMonthlyData: MonthlyData[] = [
-  {
-    month: "January",
-    year: 2024,
-    totalSpent: 4280.5,
-    totalIncome: 6700.0,
-    categories: {
-      Food: 890.5,
-      Transport: 650.0,
-      Supermarket: 580.75,
-      Utilities: 445.0,
-      Entertainment: 320.9,
-      Fuel: 240.0,
-      Transfer: 250.0,
-      Others: 903.35,
-    },
-    merchants: {
-      Uber: 420.5,
-      iFood: 380.0,
-      "Pão de Açúcar": 290.75,
-      Netflix: 89.7,
-      Starbucks: 156.9,
-      "Posto Shell": 240.0,
-      ENEL: 245.0,
-      Others: 2457.65,
-    },
-  },
-  {
-    month: "December",
-    year: 2023,
-    totalSpent: 5120.8,
-    totalIncome: 6700.0,
-    categories: {
-      Food: 1200.5,
-      Transport: 780.0,
-      Supermarket: 690.75,
-      Utilities: 445.0,
-      Entertainment: 520.9,
-      Fuel: 320.0,
-      Transfer: 180.0,
-      Others: 983.65,
-    },
-    merchants: {
-      Uber: 520.0,
-      iFood: 580.5,
-      "Pão de Açúcar": 390.75,
-      Netflix: 89.7,
-      Starbucks: 200.0,
-      "Posto Shell": 320.0,
-      ENEL: 245.0,
-      Others: 2774.85,
-    },
-  },
-  {
-    month: "November",
-    year: 2023,
-    totalSpent: 3890.2,
-    totalIncome: 6700.0,
-    categories: {
-      Food: 720.5,
-      Transport: 580.0,
-      Supermarket: 480.75,
-      Utilities: 445.0,
-      Entertainment: 280.9,
-      Fuel: 200.0,
-      Transfer: 320.0,
-      Others: 863.05,
-    },
-    merchants: {
-      Uber: 380.0,
-      iFood: 280.5,
-      "Pão de Açúcar": 240.75,
-      Netflix: 89.7,
-      Starbucks: 120.0,
-      "Posto Shell": 200.0,
-      ENEL: 245.0,
-      Others: 2334.25,
-    },
-  },
-]
-
-const banks = [
-  { id: "1", name: "Nubank" },
-  { id: "2", name: "Itaú" },
-  { id: "3", name: "Banco do Brasil" },
-]
+import { useFinancialAnalysis } from "@/hooks/use-financial-analysis"
+import { useFinancialGoals } from "@/hooks/use-financial-goals"
 
 export function FinancialAnalysisPage() {
-  const [selectedBanks, setSelectedBanks] = useState<string[]>(["1", "2", "3"])
-  const [comparisonMonths, setComparisonMonths] = useState(3)
-  const [selectedCategory, setSelectedCategory] = useState<string>("all")
-  const [viewType, setViewType] = useState<"overview" | "categories" | "trends">("overview")
-  const [showFilters, setShowFilters] = useState(false)
+  const { 
+    financialData, 
+    loading, 
+    error, 
+    filters, 
+    updateFilters,
+    getFilterOptions,
+    refetch 
+  } = useFinancialAnalysis();
 
-  // Configure page information
+  const {
+    goals,
+    loading: goalsLoading,
+    addGoal,
+    updateGoal,
+    deleteGoal
+  } = useFinancialGoals();
+  
+  const [activeView, setActiveView] = useState<"overview" | "evolution" | "spending" | "categories" | "comparison" | "health" | "goals" | "analysis">("overview")
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  
   usePageConfig({
     page: "finances",
     title: "Financial Analysis",
-    subtitle: "Visualize and analyze your financial data"
+    subtitle: "Analyze your spending patterns and financial health",
   })
-
-  const currentMonth = mockMonthlyData[0]
-  const previousMonth = mockMonthlyData[1]
-
-  const filteredData = useMemo(() => {
-    return mockMonthlyData.slice(0, comparisonMonths)
-  }, [comparisonMonths])
-
-  const spendingChange = ((currentMonth.totalSpent - previousMonth.totalSpent) / previousMonth.totalSpent) * 100
-  const incomeChange = ((currentMonth.totalIncome - previousMonth.totalIncome) / previousMonth.totalIncome) * 100
-  const savingsRate = ((currentMonth.totalIncome - currentMonth.totalSpent) / currentMonth.totalIncome) * 100
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -151,58 +71,114 @@ export function FinancialAnalysisPage() {
     }).format(value)
   }
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="container px-4 py-6 md:px-6">
+        <div className="flex min-h-[400px] w-full items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Loading financial data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="container px-4 py-6 md:px-6">
+        <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border bg-background p-8">
+          <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
+          <h3 className="text-lg font-medium mb-2">Error loading financial data</h3>
+          <p className="text-sm text-muted-foreground mb-4">{error}</p>
+          <Button onClick={refetch} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (financialData.transactionCount === 0) {
+    return (
+      <div className="container px-4 py-6 md:px-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Financial Analysis</h1>
+            <p className="text-muted-foreground">
+              Analyze your spending patterns and financial health
+            </p>
+          </div>
+        </div>
+        
+        <EmptyAnalytics 
+          onRetry={() => refetch()}
+          isError={!!error}
+          errorMessage={error || undefined}
+        />
+      </div>
+    );
+  }
+
+  const currentMonth = financialData.monthlyData[0];
+  const previousMonth = financialData.monthlyData[1];
+
   const getInsights = () => {
     const insights = []
 
-    if (spendingChange > 10) {
+    if (financialData.trends.expenseChange > 10) {
       insights.push({
         type: "warning",
         title: "Increased Spending",
-        description: `Your spending increased by ${spendingChange.toFixed(1)}% compared to last month`,
+        description: `Your spending increased by ${financialData.trends.expenseChange.toFixed(1)}% compared to last month`,
         icon: AlertTriangle,
       })
-    } else if (spendingChange < -10) {
+    } else if (financialData.trends.expenseChange < -10) {
       insights.push({
         type: "success",
         title: "Savings Detected",
-        description: `You saved ${Math.abs(spendingChange).toFixed(1)}% compared to last month`,
-        icon: TrendingDown,
-      })
-    }
-
-    const topCategory = Object.entries(currentMonth.categories).sort(([, a], [, b]) => b - a)[0]
-    if (topCategory) {
-      insights.push({
-        type: "info",
-        title: "Top Spending Category",
-        description: `${topCategory[0]} represents ${formatCurrency(topCategory[1])} of your spending`,
-        icon: PieChart,
-      })
-    }
-
-    const topMerchant = Object.entries(currentMonth.merchants).sort(([, a], [, b]) => b - a)[0]
-    if (topMerchant && topMerchant[0] !== "Others") {
-      insights.push({
-        type: "info",
-        title: "Top Individual Expense",
-        description: `You spent ${formatCurrency(topMerchant[1])} with ${topMerchant[0]} this month`,
+        description: `You reduced spending by ${Math.abs(financialData.trends.expenseChange).toFixed(1)}% this month`,
         icon: Target,
       })
     }
 
-    if (savingsRate > 30) {
+    if (financialData.trends.savingsRate > 20) {
       insights.push({
         type: "success",
-        title: "Excellent Savings Rate",
-        description: `You are saving ${savingsRate.toFixed(1)}% of your income`,
-        icon: TrendingUp,
+        title: "Great Savings Rate",
+        description: `You're saving ${financialData.trends.savingsRate.toFixed(1)}% of your income`,
+        icon: Target,
       })
-    } else if (savingsRate < 10) {
+    } else if (financialData.trends.savingsRate < 5) {
       insights.push({
         type: "warning",
         title: "Low Savings Rate",
-        description: `Consider reducing expenses. Current rate: ${savingsRate.toFixed(1)}%`,
+        description: `Consider reducing expenses to improve your savings rate`,
         icon: AlertTriangle,
+      })
+    }
+
+    if (currentMonth && financialData.categoryBreakdown.length > 0) {
+      const topCategory = financialData.categoryBreakdown[0];
+      insights.push({
+        type: "info",
+        title: "Top Spending Category",
+        description: `${topCategory.name} represents ${formatCurrency(topCategory.amount)} of your spending`,
+        icon: PieChart,
+      })
+    }
+
+    if (currentMonth && financialData.merchantBreakdown.length > 0) {
+      const topMerchant = financialData.merchantBreakdown[0];
+      insights.push({
+        type: "info",
+        title: "Top Merchant",
+        description: `You spent ${formatCurrency(topMerchant.amount)} with ${topMerchant.name} this month`,
+        icon: BarChart3,
       })
     }
 
@@ -212,168 +188,217 @@ export function FinancialAnalysisPage() {
   const insights = getInsights()
 
   return (
-    <div className="space-y-6">
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="container px-4 py-6 md:px-6">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Financial Analysis</h1>
+          <p className="text-muted-foreground">
+            Analyze your spending patterns and financial health
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFiltersOpen(!filtersOpen)}
+          >
+            <Filter className="h-4 w-4" />
+            Filters
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refetch}
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
+      </div>
+
+      {filtersOpen && (
+        <div className="mb-6">
+          <FinancialFilters
+            filters={filters}
+            onFiltersChange={updateFilters}
+            filterOptions={getFilterOptions}
+          />
+        </div>
+      )}
+
+      {/* View Navigation */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        <Button
+          variant={activeView === "overview" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveView("overview")}
+        >
+          <BarChart3 className="h-4 w-4 mr-2" />
+          Overview
+        </Button>
+        <Button
+          variant={activeView === "evolution" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveView("evolution")}
+        >
+          <Activity className="h-4 w-4 mr-2" />
+          Evolução
+        </Button>
+        <Button
+          variant={activeView === "spending" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveView("spending")}
+        >
+          <LineChart className="h-4 w-4 mr-2" />
+          Gastos
+        </Button>
+        <Button
+          variant={activeView === "categories" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveView("categories")}
+        >
+          <PieChart className="h-4 w-4 mr-2" />
+          Categorias
+        </Button>
+        <Button
+          variant={activeView === "analysis" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveView("analysis")}
+        >
+          <BarChart2 className="h-4 w-4 mr-2" />
+          Análises
+        </Button>
+        <Button
+          variant={activeView === "health" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveView("health")}
+        >
+          <Radar className="h-4 w-4 mr-2" />
+          Saúde
+        </Button>
+        <Button
+          variant={activeView === "goals" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveView("goals")}
+        >
+          <Target className="h-4 w-4 mr-2" />
+          Objetivos
+        </Button>
+        <Button
+          variant={activeView === "comparison" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setActiveView("comparison")}
+        >
+          <Calendar className="h-4 w-4 mr-2" />
+          Comparação
+        </Button>
+      </div>
+
+      {/* Overview Tab */}
+      {activeView === "overview" && (
+        <div className="space-y-6">
+          {/* Key Metrics */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Spending</CardTitle>
+                <CardTitle className="text-sm font-medium">Total Income</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold font-montserrat">{formatCurrency(currentMonth.totalSpent)}</div>
-                <p
-                  className={`text-xs flex items-center gap-1 ${
-                    spendingChange > 0 ? "text-red-600" : "text-green-600"
-                  }`}
-                >
-                  {spendingChange > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {Math.abs(spendingChange).toFixed(1)}% vs last month
-                </p>
+                <div className="text-2xl font-bold">{formatCurrency(financialData.totalIncome)}</div>
+                {financialData.trends.incomeChange !== 0 && (
+                  <div className="flex items-center pt-1">
+                    {financialData.trends.incomeChange > 0 ? (
+                      <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    ) : (
+                      <TrendingDown className="h-4 w-4 text-red-500" />
+                    )}
+                    <span className={`text-xs ml-1 ${
+                      financialData.trends.incomeChange > 0 ? 'text-emerald-500' : 'text-red-500'
+                    }`}>
+                      {Math.abs(financialData.trends.incomeChange).toFixed(1)}%
+                    </span>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Income</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold font-montserrat">{formatCurrency(currentMonth.totalIncome)}</div>
-                <p
-                  className={`text-xs flex items-center gap-1 ${incomeChange >= 0 ? "text-green-600" : "text-red-600"}`}
-                >
-                  {incomeChange >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {Math.abs(incomeChange).toFixed(1)}% vs last month
-                </p>
+                <div className="text-2xl font-bold">{formatCurrency(financialData.totalExpenses)}</div>
+                {financialData.trends.expenseChange !== 0 && (
+                  <div className="flex items-center pt-1">
+                    {financialData.trends.expenseChange > 0 ? (
+                      <TrendingUp className="h-4 w-4 text-red-500" />
+                    ) : (
+                      <TrendingDown className="h-4 w-4 text-emerald-500" />
+                    )}
+                    <span className={`text-xs ml-1 ${
+                      financialData.trends.expenseChange > 0 ? 'text-red-500' : 'text-emerald-500'
+                    }`}>
+                      {Math.abs(financialData.trends.expenseChange).toFixed(1)}%
+                    </span>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Savings Rate</CardTitle>
+                <CardTitle className="text-sm font-medium">Net Income</CardTitle>
                 <Target className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold font-montserrat">{savingsRate.toFixed(1)}%</div>
+                <div className="text-2xl font-bold">{formatCurrency(financialData.netIncome)}</div>
                 <p className="text-xs text-muted-foreground">
-                  {formatCurrency(currentMonth.totalIncome - currentMonth.totalSpent)} saved
+                  {financialData.trends.savingsRate.toFixed(1)}% savings rate
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Daily Average</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Transactions</CardTitle>
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold font-montserrat">{formatCurrency(currentMonth.totalSpent / 31)}</div>
-                <p className="text-xs text-muted-foreground">Average daily spending</p>
+                <div className="text-2xl font-bold">{financialData.transactionCount}</div>
+                <p className="text-xs text-muted-foreground">
+                  Avg: {formatCurrency(financialData.averageTransaction)}
+                </p>
               </CardContent>
             </Card>
           </div>
-
-          {/* Filters and View Controls */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="font-montserrat">Analysis Controls</CardTitle>
-                  <CardDescription>Customize your financial view</CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={viewType === "overview" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setViewType("overview")}
-                  >
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Overview
-                  </Button>
-                  <Button
-                    variant={viewType === "categories" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setViewType("categories")}
-                  >
-                    <PieChart className="h-4 w-4 mr-2" />
-                    Categories
-                  </Button>
-                  <Button
-                    variant={viewType === "trends" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setViewType("trends")}
-                  >
-                    <LineChart className="h-4 w-4 mr-2" />
-                    Trends
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
-                    <Filter className="h-4 w-4 mr-2" />
-                    {showFilters ? "Hide" : "Show"} Filters
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            {showFilters && (
-              <CardContent>
-                <FinancialFilters
-                  selectedBanks={selectedBanks}
-                  setSelectedBanks={setSelectedBanks}
-                  comparisonMonths={comparisonMonths}
-                  setComparisonMonths={setComparisonMonths}
-                  selectedCategory={selectedCategory}
-                  setSelectedCategory={setSelectedCategory}
-                  banks={banks}
-                  categories={Object.keys(currentMonth.categories)}
-                />
-              </CardContent>
-            )}
-          </Card>
 
           {/* Insights */}
           {insights.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="font-montserrat">Smart Insights</CardTitle>
-                <CardDescription>Automated analysis of your financial patterns</CardDescription>
+                <CardTitle>Financial Insights</CardTitle>
+                <CardDescription>
+                  Key observations about your financial health
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
                   {insights.map((insight, index) => (
-                    <div
-                      key={index}
-                      className={`p-4 rounded-lg border ${
-                        insight.type === "success"
-                          ? "bg-green-50 border-green-200"
+                    <div key={index} className="flex items-start gap-3">
+                      <div className={`p-2 rounded-full ${
+                        insight.type === "success" 
+                          ? "bg-emerald-100 text-emerald-600" 
                           : insight.type === "warning"
-                            ? "bg-yellow-50 border-yellow-200"
-                            : "bg-blue-50 border-blue-200"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <insight.icon
-                          className={`h-5 w-5 mt-0.5 ${
-                            insight.type === "success"
-                              ? "text-green-600"
-                              : insight.type === "warning"
-                                ? "text-yellow-600"
-                                : "text-blue-600"
-                          }`}
-                        />
-                        <div>
-                          <h4
-                            className={`font-semibold mb-1 ${
-                              insight.type === "success"
-                                ? "text-green-800"
-                                : insight.type === "warning"
-                                  ? "text-yellow-800"
-                                  : "text-blue-800"
-                            }`}
-                          >
-                            {insight.title}
-                          </h4>
-                          <p className="text-sm text-muted-foreground">{insight.description}</p>
-                        </div>
+                          ? "bg-amber-100 text-amber-600"
+                          : "bg-blue-100 text-blue-600"
+                      }`}>
+                        <insight.icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{insight.title}</h4>
+                        <p className="text-sm text-muted-foreground">{insight.description}</p>
                       </div>
                     </div>
                   ))}
@@ -381,55 +406,77 @@ export function FinancialAnalysisPage() {
               </CardContent>
             </Card>
           )}
+        </div>
+      )}
 
-          {/* Charts and Analysis */}
-          {viewType === "overview" && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <SpendingChart data={filteredData} />
-              <MonthlyComparison currentMonth={currentMonth} previousMonth={previousMonth} />
-            </div>
+      {/* Spending Tab */}
+      {activeView === "spending" && (
+        <div className="space-y-6">
+          <SpendingChart data={financialData.monthlyData} />
+        </div>
+      )}
+
+      {/* Categories Tab */}
+      {activeView === "categories" && (
+        <div className="space-y-6">
+          <CategoryBreakdown 
+            categories={financialData.categoryBreakdown}
+            merchants={financialData.merchantBreakdown}
+          />
+        </div>
+      )}
+
+      {/* Evolution Tab */}
+      {activeView === "evolution" && (
+        <div className="space-y-6">
+          <EvolutionLineChart 
+            data={financialData.monthlyData}
+            showPrediction={true}
+          />
+          <ComparativeBarChart data={financialData.monthlyData} />
+        </div>
+      )}
+
+      {/* Analysis Tab */}
+      {activeView === "analysis" && (
+        <div className="space-y-6">
+          <StackedAreaChart data={financialData.monthlyData} />
+          {financialData.monthlyData.length > 0 && (
+            <WaterfallChart monthData={financialData.monthlyData[0]} />
           )}
+        </div>
+      )}
 
-          {viewType === "categories" && <CategoryBreakdown data={currentMonth} />}
+      {/* Health Tab */}
+      {activeView === "health" && (
+        <div className="space-y-6">
+          <FinancialHealthRadar 
+            data={financialData} 
+            previousData={undefined} // TODO: Add previous period data
+          />
+        </div>
+      )}
 
-          {viewType === "trends" && (
-            <div className="grid grid-cols-1 gap-6">
-              <SpendingChart data={filteredData} />
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-montserrat">Trend Analysis</CardTitle>
-                  <CardDescription>Spending patterns over time</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {Object.entries(currentMonth.categories).map(([category, amount]) => {
-                      const previousAmount = previousMonth.categories[category] || 0
-                      const change = previousAmount > 0 ? ((amount - previousAmount) / previousAmount) * 100 : 0
+      {/* Goals Tab */}
+      {activeView === "goals" && (
+        <div className="space-y-6">
+          <FinancialGoalsTracker 
+            goals={goals}
+            onAddGoal={() => console.log('Add goal - TODO: Implement dialog')}
+            onEditGoal={(goalId) => console.log('Edit goal:', goalId)}
+          />
+        </div>
+      )}
 
-                      return (
-                        <div key={category} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                          <div>
-                            <p className="font-medium">{category}</p>
-                            <p className="text-sm text-muted-foreground">{formatCurrency(amount)} this month</p>
-                          </div>
-                          <div className="text-right">
-                            <Badge
-                              variant={change > 0 ? "destructive" : change < 0 ? "default" : "secondary"}
-                              className="mb-1"
-                            >
-                              {change > 0 ? "+" : ""}
-                              {change.toFixed(1)}%
-                            </Badge>
-                            <p className="text-xs text-muted-foreground">vs last month</p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+      {/* Comparison Tab */}
+      {activeView === "comparison" && (
+        <div className="space-y-6">
+          <MonthlyComparison 
+            currentMonth={financialData.monthlyData[0] || null}
+            previousMonth={financialData.monthlyData[1] || null}
+          />
+        </div>
+      )}
     </div>
   )
 }
