@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleGoogleUserAuth = async (googleUser: any) => {
     try {
       // Primeiro, tentar fazer login com email para ver se o usuário já existe
-      const loginResponse = await fetch('/api/graphql', {
+      const loginResponse = await fetch('/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("aura-user", JSON.stringify(existingUser))
       } else {
         // Usuário não existe, criar novo
-        const registerResponse = await fetch('/api/graphql', {
+        const registerResponse = await fetch('/graphql', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       // Make GraphQL request via proxy
-      const response = await fetch('/api/graphql', {
+      const response = await fetch('/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -214,6 +214,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         console.error("Login errors:", errors)
       }
+
+      const { data, errors } = await response.json()
+
+      if (data?.login && !errors) {
+        const { token, user: userData } = data.login
+        
+        // Store token and user data
+        localStorage.setItem("aura-token", token)
+        localStorage.setItem("aura-user", JSON.stringify(userData))
+        
+        // Set user state with avatar placeholder
+        const userWithAvatar = {
+          ...userData,
+          avatar: "/diverse-user-avatars.png"
+        }
+        
+        setUser(userWithAvatar)
+        setIsLoading(false)
+        return true
+      } else {
+        console.error("Login errors:", errors)
+      }
     } catch (error) {
       console.error("Login error:", error)
     }
@@ -227,7 +249,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       // Make GraphQL request via proxy
-      const response = await fetch('/api/graphql', {
+      const response = await fetch('/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

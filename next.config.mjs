@@ -12,8 +12,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/graphql',
-        destination: 'http://200.103.188.216:4000/graphql',
+      source: '/graphql',
+      destination: process.env.GRAPHQL_ENDPOINT,
       },
     ]
   },
