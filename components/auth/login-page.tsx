@@ -37,7 +37,7 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({ name: "", email: "", password: "" })
   const [error, setError] = useState("")
-  const { login, register, isLoading } = useAuth()
+  const { login, loginWithGoogle, register, isLoading } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,6 +53,14 @@ export function LoginPage() {
       }
     } catch (err) {
       setError("An error occurred. Please try again later.")
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle()
+    } catch (err) {
+      setError("Failed to sign in with Google. Please try again.")
     }
   }
 
@@ -111,7 +119,12 @@ export function LoginPage() {
                   <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
                   <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or sign in with</span></div>
               </div>
-              <Button variant="outline" className="w-full" type="button"><GoogleIcon /> <span className="ml-2">Google</span></Button>
+              <Button variant="outline" className="w-full" type="button" onClick={handleGoogleLogin} disabled={isLoading}>
+                <GoogleIcon /> 
+                <span className="ml-2">
+                  {isLoginView ? "Entrar com Google" : "Criar conta com Google"}
+                </span>
+              </Button>
             </form>
             <div className="mt-4 text-center text-sm">
                <Button

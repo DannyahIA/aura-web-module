@@ -54,45 +54,6 @@ export function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-
-      <SidebarFooter>
-        <SidebarSeparator />
-        <div className="flex items-center gap-3 p-2">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.avatar || ""} alt={user?.name || ""} />
-            <AvatarFallback>
-              <User />
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.name}</p>
-            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-          </div>
-        </div>
-
-        <SidebarMenu>
-          {userNavigationItems.map((item) => (
-            <SidebarMenuItem key={item.key}>
-              <Link href={item.href} passHref>
-                <SidebarMenuButton
-                  isActive={isActive(item.href)}
-                  tooltip={item.label}
-                  variant="ghost"
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          ))}
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={logout} variant="ghost">
-              <LogOut className="h-5 w-5" />
-              <span>Sign out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   )
 }
