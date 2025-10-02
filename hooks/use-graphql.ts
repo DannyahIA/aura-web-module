@@ -6,10 +6,11 @@ import {
   GET_BANK_ACCOUNTS,
   CREATE_BANK,
   CREATE_TRANSACTION,
+  CREATE_BANK_ACCOUNT,
   UPDATE_BANK,
   DELETE_BANK
 } from '@/lib/graphql-queries';
-import { BankType, TransactionType, BankAccountType, CreateBankInput, CreateTransactionInput } from '@/lib/types';
+import { BankType, TransactionType, BankAccountType, CreateBankInput, CreateTransactionInput, CreateBankAccountInput } from '@/lib/types';
 
 // Hook para gerenciar bancos
 export function useBanks(userId?: string) {
@@ -179,6 +180,20 @@ export function useBankAccounts(bankId?: string) {
     }
   };
 
+  const createBankAccount = async (input: CreateBankAccountInput) => {
+    try {
+      const { data } = await client.mutate({
+        mutation: CREATE_BANK_ACCOUNT,
+        variables: { input },
+        refetchQueries: [{ query: GET_BANK_ACCOUNTS, variables: { bankId } }]
+      });
+      
+      return (data as any)?.createBankAccount;
+    } catch (err) {
+      throw new Error(err instanceof Error ? err.message : 'Erro ao criar conta bancária');
+    }
+  };
+
   useEffect(() => {
     fetchAccounts();
   }, [bankId]);
@@ -187,7 +202,8 @@ export function useBankAccounts(bankId?: string) {
     accounts,
     loading,
     error,
-    refetch: fetchAccounts
+    refetch: fetchAccounts,
+    createBankAccount
   };
 }
 

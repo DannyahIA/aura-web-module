@@ -1,75 +1,300 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { Loader2, AlertCircle, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { AddBankDialog } from "@/components/banks/add-bank-dialog"
-import { AddAccountDialog } from "@/components/banks/add-account-dialog"
-import { Building2, Plus, Trash2, RefreshCw, AlertCircle, Loader2 } from "lucide-react"
+
+// Componentes modularizados
+import { BankHeader } from "./bank-header"
+import { BankStats } from "./bank-stats"
+import { BankFilters } from "./bank-filters"
+import { BankList } from "./bank-list"
+import { BankDialogs } from "./bank-dialogs"
+import { AccountDialog } from "./account-dialog"
+
+// Hooks e utilidades
 import { usePageConfig } from "@/hooks/use-page-config"
 import { useBanks } from "@/hooks/use-graphql"
 import { useAuth } from "@/contexts/auth-context"
-import { BankType } from "@/lib/types"
+import { BankType, BankAccountType } from "@/lib/types"
+import client from "@/lib/apollo-client"
+import { GET_BANK_ACCOUNTS, CREATE_BANK_ACCOUNT } from "@/lib/graphql-queries"
+
+interface BankWithAccounts extends BankType {
+  accounts?: BankAccountType[]
+  totalBalance?: number
+  isFavorite?: boolean
+}
+
+interface AccountData {
+  accountId: string
+  type: string
+  balance: number
+  currencyCode: string
+}
 
 export function BanksPage() {
+  // Estados de filtros e UI
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterBy, setFilterBy] = useState<"all" | "favorites" | "active" | "inactive">("all")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [showBalances, setShowBalances] = useState(true)
+  
+  // Estados de diálogos
   const [addBankOpen, setAddBankOpen] = useState(false)
+  const [editBankOpen, setEditBankOpen] = useState(false)
   const [addAccountOpen, setAddAccountOpen] = useState(false)
-  const [selectedBankId, setSelectedBankId] = useState<string>("")
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  
+  // Estados de formulários
+  const [bankName, setBankName] = useState("")
+  const [accountData, setAccountData] = useState<AccountData>({
+    accountId: "",
+    type: "checking",
+    balance: 0,
+    currencyCode: "BRL"
+  })
+  
+  // Estados de seleção
+  const [selectedBank, setSelectedBank] = useState<BankWithAccounts | null>(null)
+  const [banksWithAccounts, setBanksWithAccounts] = useState<BankWithAccounts[]>([])
   
   const { user } = useAuth()
   const { banks, loading, error, refetch, createBank, updateBank, deleteBank } = useBanks(user?.id)
 
   usePageConfig({
     page: "banks",
-    title: "Bank Management",
-    subtitle: "Connect and manage your bank accounts"
+    title: "Bank Management", 
+    subtitle: "Complete bank and account management system"
   })
 
-  const handleCreateBank = async (bankData: { name: string }) => {
-    if (!user?.id) return
+  // Carregar contas para cada banco
+  useEffect(() => {
+    const loadBankAccounts = async () => {
+      if (!banks || banks.length === 0) {
+        setBanksWithAccounts([])
+        return
+      }
+
+      try {
+        const banksWithAccountsData: BankWithAccounts[] = await Promise.all(
+          banks.map(async (bank) => {
+            try {
+              const { data } = await client.query({
+                query: GET_BANK_ACCOUNTS,
+                variables: { bankId: bank.id },
+                fetchPolicy: 'network-only'
+              })
+
+              const accounts: BankAccountType[] = (data as any)?.bankAccounts || []
+              const totalBalance = accounts.reduce((sum, acc) => sum + (acc.balance || 0), 0)
+              
+              return {
+                ...bank,
+                accounts,
+                totalBalance,
+                isFavorite: Math.random() > 0.7 // TODO: Implementar favoritos no backend
+              }
+            } catch (err) {
+              console.error(`Error loading accounts for bank ${bank.id}:`, err)
+              return {
+                ...bank,
+                accounts: [],
+                totalBalance: 0,
+                isFavorite: false
+              }
+            }
+          })
+        )
+        
+        setBanksWithAccounts(banksWithAccountsData)
+      } catch (err) {
+        console.error('Error loading bank accounts:', err)
+      }
+    }
+
+    loadBankAccounts()
+  }, [banks, user?.id])
+
+  // Funções utilitárias
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(amount)
+  }
+
+  const getAccountTypeLabel = (type: string) => {
+    const types: Record<string, string> = {
+      checking: "Conta Corrente",
+      savings: "Poupança", 
+      credit: "Cartão de Crédito",
+      investment: "Investimento"
+    }
+    return types[type] || type
+  }
+
+  const getAccountTypeColor = (type: string) => {
+    const colors: Record<string, string> = {
+      checking: "bg-blue-100 text-blue-800",
+      savings: "bg-green-100 text-green-800",
+      credit: "bg-purple-100 text-purple-800",
+      investment: "bg-orange-100 text-orange-800"
+    }
+    return colors[type] || "bg-gray-100 text-gray-800"
+  }
+
+  // Filtros e busca
+  const filteredBanks = banksWithAccounts.filter(bank => {
+    const matchesSearch = bank.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+    
+    switch (filterBy) {
+      case "favorites":
+        return matchesSearch && bank.isFavorite
+      case "active":
+        return matchesSearch && (bank.accounts?.length || 0) > 0
+      case "inactive":
+        return matchesSearch && (bank.accounts?.length || 0) === 0
+      default:
+        return matchesSearch
+    }
+  })
+
+  // Funções CRUD
+  const handleCreateBank = async () => {
+    if (!user?.id || !bankName.trim()) return
 
     try {
       await createBank({
-        name: bankData.name,
+        name: bankName.trim(),
         userId: user.id
       })
       setAddBankOpen(false)
+      setBankName("")
+      refetch()
     } catch (error) {
       console.error('Error creating bank:', error)
     }
   }
 
-  const handleUpdateBank = async (id: string, name: string) => {
+  const handleUpdateBank = async () => {
+    if (!selectedBank || !bankName.trim()) return
+
     try {
-      await updateBank(id, { name })
+      await updateBank(selectedBank.id, { name: bankName.trim() })
+      setEditBankOpen(false)
+      setSelectedBank(null)
+      setBankName("")
+      refetch()
     } catch (error) {
       console.error('Error updating bank:', error)
     }
   }
 
-  const handleDeleteBank = async (id: string) => {
+  const handleDeleteBank = async () => {
+    if (!selectedBank) return
+
     try {
-      await deleteBank(id)
+      await deleteBank(selectedBank.id)
+      setDeleteConfirmOpen(false)
+      setSelectedBank(null)
+      refetch()
     } catch (error) {
       console.error('Error deleting bank:', error)
     }
   }
 
+  const handleCreateAccount = async () => {
+    if (!selectedBank || !user?.id || !accountData.accountId.trim()) return
+
+    try {
+      await client.mutate({
+        mutation: CREATE_BANK_ACCOUNT,
+        variables: { 
+          input: {
+            bankId: selectedBank.id,
+            accountId: accountData.accountId,
+            type: accountData.type,
+            balance: accountData.balance,
+            currencyCode: accountData.currencyCode
+          }
+        }
+      })
+      
+      setAddAccountOpen(false)
+      setAccountData({
+        accountId: "",
+        type: "checking",
+        balance: 0,
+        currencyCode: "BRL"
+      })
+      
+      refetch()
+    } catch (error) {
+      console.error('Error creating account:', error)
+    }
+  }
+
+  // Funções de manipulação de estado
+  const handleToggleFavorite = (bankId: string) => {
+    setBanksWithAccounts(prev => 
+      prev.map(bank => 
+        bank.id === bankId 
+          ? { ...bank, isFavorite: !bank.isFavorite }
+          : bank
+      )
+    )
+  }
+
+  const openEditBank = (bank: BankWithAccounts) => {
+    setSelectedBank(bank)
+    setBankName(bank.name || "")
+    setEditBankOpen(true)
+  }
+
+  const openDeleteConfirm = (bank: BankWithAccounts) => {
+    setSelectedBank(bank)
+    setDeleteConfirmOpen(true)
+  }
+
+  const openAddAccount = (bank: BankWithAccounts) => {
+    setSelectedBank(bank)
+    setAccountData({
+      accountId: "",
+      type: "checking",
+      balance: 0,
+      currencyCode: "BRL"
+    })
+    setAddAccountOpen(true)
+  }
+
+  // Estados calculados
+  const hasBanks = banks && banks.length > 0
+  const totalBalance = banksWithAccounts.reduce((sum, bank) => sum + (bank.totalBalance || 0), 0)
+  const totalAccounts = banksWithAccounts.reduce((sum, bank) => sum + (bank.accounts?.length || 0), 0)
+  const favoriteCount = banksWithAccounts.filter(bank => bank.isFavorite).length
+
+  // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Carregando bancos...</span>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground">Carregando bancos...</p>
+        </div>
       </div>
     )
   }
 
+  // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
-        <span className="text-red-500 mb-4">Erro ao carregar bancos: {error}</span>
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <AlertCircle className="h-12 w-12 text-red-500" />
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-red-600">Erro ao carregar bancos</h3>
+          <p className="text-muted-foreground mt-1">{error}</p>
+        </div>
         <Button onClick={refetch} variant="outline">
           <RefreshCw className="h-4 w-4 mr-2" />
           Tentar novamente
@@ -80,96 +305,80 @@ export function BanksPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bancos</h1>
-          <p className="text-muted-foreground">
-            Gerencie suas contas bancárias conectadas
-          </p>
-        </div>
-        <Button onClick={() => setAddBankOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Adicionar Banco
-        </Button>
+      {/* Header */}
+      <div className="space-y-4">
+        <BankHeader 
+          onRefresh={refetch}
+          onAddBank={() => setAddBankOpen(true)}
+        />
+
+        {/* Estatísticas */}
+        <BankStats
+          totalBanks={hasBanks ? banksWithAccounts.length : 0}
+          totalAccounts={hasBanks ? totalAccounts : 0}
+          favoriteCount={hasBanks ? favoriteCount : 0}
+          totalBalance={hasBanks ? totalBalance : 0}
+          showBalances={showBalances}
+          formatCurrency={formatCurrency}
+        />
       </div>
 
-      {banks.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Nenhum banco conectado</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Conecte suas contas bancárias para começar a gerenciar suas finanças
-            </p>
-            <Button onClick={() => setAddBankOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar seu primeiro banco
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {banks.map((bank: BankType) => (
-            <Card key={bank.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-base font-medium flex items-center">
-                  <Building2 className="h-5 w-5 mr-2" />
-                  {bank.name || 'Banco sem nome'}
-                </CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDeleteBank(bank.id)}
-                  className="text-red-600 hover:text-red-800"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">ID:</span>
-                    <span className="font-mono text-xs">{bank.id}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Criado em:</span>
-                    <span>{new Date(bank.createdAt).toLocaleDateString('pt-BR')}</span>
-                  </div>
-                  <div className="pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => {
-                        setSelectedBankId(bank.id)
-                        setAddAccountOpen(true)
-                      }}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Adicionar Conta
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      <AddBankDialog
-        open={addBankOpen}
-        onOpenChange={setAddBankOpen}
-        onAddBank={(bankData) => handleCreateBank({ name: bankData.name })}
+      {/* Filtros */}
+      <BankFilters
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterBy={filterBy}
+        setFilterBy={setFilterBy}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        showBalances={showBalances}
+        setShowBalances={setShowBalances}
+        hasBanks={hasBanks}
       />
 
-      <AddAccountDialog
+      {/* Lista de bancos */}
+      <BankList
+        banks={banksWithAccounts}
+        filteredBanks={filteredBanks}
+        hasBanks={hasBanks}
+        viewMode={viewMode}
+        searchTerm={searchTerm}
+        showBalances={showBalances}
+        formatCurrency={formatCurrency}
+        getAccountTypeLabel={getAccountTypeLabel}
+        getAccountTypeColor={getAccountTypeColor}
+        onToggleFavorite={handleToggleFavorite}
+        onEditBank={openEditBank}
+        onAddAccount={openAddAccount}
+        onDeleteBank={openDeleteConfirm}
+        onAddBank={() => setAddBankOpen(true)}
+        onClearSearch={() => setSearchTerm("")}
+        onShowAll={() => setFilterBy("all")}
+      />
+
+      {/* Diálogos */}
+      <BankDialogs
+        addBankOpen={addBankOpen}
+        setAddBankOpen={setAddBankOpen}
+        bankName={bankName}
+        setBankName={setBankName}
+        onCreateBank={handleCreateBank}
+        editBankOpen={editBankOpen}
+        setEditBankOpen={setEditBankOpen}
+        onUpdateBank={handleUpdateBank}
+        deleteConfirmOpen={deleteConfirmOpen}
+        setDeleteConfirmOpen={setDeleteConfirmOpen}
+        selectedBankName={selectedBank?.name}
+        onDeleteBank={handleDeleteBank}
+      />
+
+      <AccountDialog
         open={addAccountOpen}
-        onOpenChange={setAddAccountOpen}
-        bankName={banks.find(bank => bank.id === selectedBankId)?.name || ""}
-        onAddAccount={() => {
-          setAddAccountOpen(false)
-          refetch()
-        }}
+        setOpen={setAddAccountOpen}
+        selectedBankName={selectedBank?.name}
+        accountData={accountData}
+        setAccountData={setAccountData}
+        onCreateAccount={handleCreateAccount}
       />
     </div>
   )

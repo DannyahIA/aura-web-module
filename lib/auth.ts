@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'google') {
         try {
           // Verificar se o usuário já existe no backend
-          const checkUserResponse = await fetch('http://200.103.188.216:4000/graphql', {
+          const checkUserResponse = await fetch('/api/graphql', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ export const authOptions: NextAuthOptions = {
 
           // Se o usuário não existe, criar um novo
           if (!userData?.userByEmail) {
-            const createUserResponse = await fetch('http://200.103.188.216:4000/graphql', {
+            const createUserResponse = await fetch('/api/graphql', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

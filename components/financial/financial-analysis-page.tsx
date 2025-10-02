@@ -8,6 +8,7 @@ import { FinancialFilters } from "@/components/financial/financial-filters"
 import { SpendingChart } from "@/components/financial/spending-chart"
 import { CategoryBreakdown } from "@/components/financial/category-breakdown"
 import { MonthlyComparison } from "@/components/financial/monthly-comparison"
+import { EmptyAnalytics } from "@/components/ui/empty-states"
 import {
   TrendingUp,
   TrendingDown,

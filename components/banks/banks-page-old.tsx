@@ -1,102 +1,216 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { AddBankDialog } from "@/components/banks/add-bank-dialog"
-import { AddAccountDialog } from "@/components/banks/add-account-dialog"
-import { Building2, Plus, Wifi, WifiOff, Trash2, RefreshCw, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { FirstBankSetup } from "@/components/banks/first-bank-setup"
+import { 
+  Building2, 
+  Plus, 
+  Trash2, 
+  Edit3, 
+  Eye, 
+  EyeOff, 
+  CreditCard, 
+  Wallet, 
+  TrendingUp, 
+  TrendingDown,
+  MoreHorizontal,
+  Filter,
+  Search,
+  RefreshCw,
+  Loader2,
+  AlertCircle,
+  Star,
+  StarOff
+} from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { usePageConfig } from "@/hooks/use-page-config"
 import { useBanks } from "@/hooks/use-graphql"
 import { useAuth } from "@/contexts/auth-context"
-import { BankType } from "@/lib/types"
+import { BankType, BankAccountType, CreateBankAccountInput } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
-interface BankAccount {
-  id: string
-  name: string
-  type: "checking" | "savings" | "credit"
-  balance: number
-  lastSync: string
-  status: "connected" | "disconnected" | "syncing" | "error"
+interface BankWithAccounts extends BankType {
+  accounts?: BankAccountType[]
+  totalBalance?: number
+  isFavorite?: boolean
 }
 
 export function BanksPage() {
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterBy, setFilterBy] = useState<"all" | "favorites" | "active" | "inactive">("all")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [showBalances, setShowBalances] = useState(true)
+  
+  // Dialogs state
   const [addBankOpen, setAddBankOpen] = useState(false)
+  const [editBankOpen, setEditBankOpen] = useState(false)
   const [addAccountOpen, setAddAccountOpen] = useState(false)
-  const [selectedBankId, setSelectedBankId] = useState<string>("")
+  const [editAccountOpen, setEditAccountOpen] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  
+  // Selected items
+  const [selectedBank, setSelectedBank] = useState<BankWithAccounts | null>(null)
+  const [selectedAccount, setSelectedAccount] = useState<BankAccountType | null>(null)
+  const [banksWithAccounts, setBanksWithAccounts] = useState<BankWithAccounts[]>([])
   
   const { user } = useAuth()
   const { banks, loading, error, refetch, createBank, updateBank, deleteBank } = useBanks(user?.id)
 
   usePageConfig({
     page: "banks",
-    title: "Bank Management",
-    subtitle: "Connect and manage your bank accounts"
+    title: "Bank Management", 
+    subtitle: "Complete bank and account management system"
   })
 
-  const handleCreateBank = async (bankData: { name: string }) => {
-    if (!user?.id) return
+  // Carregar contas para cada banco
+  useEffect(() => {
+    const loadBankAccounts = async () => {
+      if (!banks || banks.length === 0) {
+        setBanksWithAccounts([])
+        return
+      }
 
-    try {
-      await createBank({
-        name: bankData.name,
-        userId: user.id
-      })
-      setAddBankOpen(false)
-    } catch (error) {
-      console.error('Error creating bank:', error)
+      try {
+        const banksWithAccountsData: BankWithAccounts[] = await Promise.all(
+          banks.map(async (bank) => {
+            try {
+              // Simular carregamento de contas (substituir pela query real)
+              const mockAccounts: BankAccountType[] = [
+                {
+                  id: `acc_${bank.id}_1`,
+                  bankId: bank.id,
+                  accountId: "0001-123456",
+                  type: "checking",
+                  balance: Math.random() * 10000,
+                  currencyCode: "BRL",
+                  userId: user?.id || "",
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString()
+                },
+                {
+                  id: `acc_${bank.id}_2`, 
+                  bankId: bank.id,
+                  accountId: "0002-789012",
+                  type: "savings",
+                  balance: Math.random() * 5000,
+                  currencyCode: "BRL",
+                  userId: user?.id || "",
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString()
+                }
+              ]
+
+              const totalBalance = mockAccounts.reduce((sum, acc) => sum + (acc.balance || 0), 0)
+              
+              return {
+                ...bank,
+                accounts: mockAccounts,
+                totalBalance,
+                isFavorite: Math.random() > 0.7 // Random favorites
+              }
+            } catch (err) {
+              console.error(`Error loading accounts for bank ${bank.id}:`, err)
+              return {
+                ...bank,
+                accounts: [],
+                totalBalance: 0,
+                isFavorite: false
+              }
+            }
+          })
+        )
+        
+        setBanksWithAccounts(banksWithAccountsData)
+      } catch (err) {
+        console.error('Error loading bank accounts:', err)
+      }
     }
-  }
 
-  const handleUpdateBank = async (id: string, name: string) => {
-    try {
-      await updateBank(id, { name })
-    } catch (error) {
-      console.error('Error updating bank:', error)
+    loadBankAccounts()
+  }, [banks])
+
+  // Filtros e busca
+  const filteredBanks = banksWithAccounts.filter(bank => {
+    const matchesSearch = bank.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+    
+    switch (filterBy) {
+      case "favorites":
+        return matchesSearch && bank.isFavorite
+      case "active":
+        return matchesSearch && (bank.accounts?.length || 0) > 0
+      case "inactive":
+        return matchesSearch && (bank.accounts?.length || 0) === 0
+      default:
+        return matchesSearch
     }
-  }
-
-  "use client"
-
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { AddBankDialog } from "@/components/banks/add-bank-dialog"
-import { AddAccountDialog } from "@/components/banks/add-account-dialog"
-import { Building2, Plus, Trash2, RefreshCw, AlertCircle, Loader2 } from "lucide-react"
-import { usePageConfig } from "@/hooks/use-page-config"
-import { useBanks } from "@/hooks/use-graphql"
-import { useAuth } from "@/contexts/auth-context"
-import { BankType } from "@/lib/types"
-
-export function BanksPage() {
-  const [addBankOpen, setAddBankOpen] = useState(false)
-  const [addAccountOpen, setAddAccountOpen] = useState(false)
-  const [selectedBankId, setSelectedBankId] = useState<string>("")
-  
-  const { user } = useAuth()
-  const { banks, loading, error, refetch, createBank, updateBank, deleteBank } = useBanks(user?.id)
-
-  usePageConfig({
-    page: "banks",
-    title: "Bank Management",
-    subtitle: "Connect and manage your bank accounts"
   })
 
-  const handleCreateBank = async (bankData: { name: string }) => {
-    if (!user?.id) return
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(amount)
+  }
 
-    try {
-      await createBank({
-        name: bankData.name,
-        userId: user.id
-      })
-      setAddBankOpen(false)
-    } catch (error) {
-      console.error('Error creating bank:', error)
+  const getAccountTypeLabel = (type: string) => {
+    const types: Record<string, string> = {
+      checking: "Conta Corrente",
+      savings: "Poupança", 
+      credit: "Cartão de Crédito",
+      investment: "Investimento"
     }
+    return types[type] || type
+  }
+
+  const getAccountTypeColor = (type: string) => {
+    const colors: Record<string, string> = {
+      checking: "bg-blue-100 text-blue-800",
+      savings: "bg-green-100 text-green-800",
+      credit: "bg-purple-100 text-purple-800",
+      investment: "bg-orange-100 text-orange-800"
+    }
+    return colors[type] || "bg-gray-100 text-gray-800"
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground">Carregando bancos...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <EmptyBanks
+        onAddBank={() => setAddBankOpen(true)}
+        onRetry={refetch}
+        isError={true}
+        errorMessage={error}
+      />
+    )
+  }
+
+  if (!banks || banks.length === 0) {
+    return (
+      <EmptyBanks
+        onAddBank={() => setAddBankOpen(true)}
+        onRetry={refetch}
+        isError={false}
+      />
+    )
   }
 
   const handleUpdateBank = async (id: string, name: string) => {
@@ -229,420 +343,6 @@ export function BanksPage() {
           setAddAccountOpen(false)
           refetch()
         }}
-      />
-    </div>
-  )
-}
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Carregando bancos...</span>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
-        <span className="text-red-500 mb-4">Erro ao carregar bancos: {error}</span>
-        <Button onClick={refetch} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Tentar novamente
-        </Button>
-      </div>
-    )
-  }
-          balance: 2450.75,
-          lastSync: "2024-01-15T10:30:00Z",
-          status: "connected",
-        },
-        {
-          id: "1-2",
-          name: "Nu Business",
-          type: "checking",
-          balance: 8920.5,
-          lastSync: "2024-01-15T10:30:00Z",
-          status: "connected",
-        },
-        {
-          id: "1-3",
-          name: "Credit Card",
-          type: "credit",
-          balance: -1250.0,
-          lastSync: "2024-01-15T10:30:00Z",
-          status: "connected",
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "Itaú",
-      logo: "/placeholder.svg?height=40&width=40&text=Itaú",
-      color: "#EC7000",
-      accounts: [
-        {
-          id: "2-1",
-          name: "Checking Account",
-          type: "checking",
-          balance: 1580.25,
-          lastSync: "2024-01-15T09:15:00Z",
-          status: "error",
-        },
-        {
-          id: "2-2",
-          name: "Savings",
-          type: "savings",
-          balance: 5200.0,
-          lastSync: "2024-01-14T18:45:00Z",
-          status: "disconnected",
-        },
-      ],
-    },
-    {
-      id: "3",
-      name: "Banco do Brasil",
-      logo: "/placeholder.svg?height=40&width=40&text=BB",
-      color: "#FFF100",
-      accounts: [
-        {
-          id: "3-1",
-          name: "Checking Account",
-          type: "checking",
-          balance: 750.8,
-          lastSync: "2024-01-15T11:00:00Z",
-          status: "syncing",
-        },
-      ],
-    },
-  ])
-
-  const handleAddBank = (bankData: { name: string; logo: string; color: string }) => {
-    const newBank: Bank = {
-      id: Date.now().toString(),
-      ...bankData,
-      accounts: [],
-    }
-    setBanks([...banks, newBank])
-  }
-
-  const handleAddAccount = (accountData: { name: string; type: "checking" | "savings" | "credit" }) => {
-    setBanks(
-      banks.map((bank) =>
-        bank.id === selectedBankId
-          ? {
-              ...bank,
-              accounts: [
-                ...bank.accounts,
-                {
-                  id: `${bank.id}-${Date.now()}`,
-                  ...accountData,
-                  balance: 0,
-                  lastSync: new Date().toISOString(),
-                  status: "disconnected" as const,
-                },
-              ],
-            }
-          : bank,
-      ),
-    )
-  }
-
-  const handleSyncAccount = (bankId: string, accountId: string) => {
-    setBanks(
-      banks.map((bank) =>
-        bank.id === bankId
-          ? {
-              ...bank,
-              accounts: bank.accounts.map((account) =>
-                account.id === accountId ? { ...account, status: "syncing" as const } : account,
-              ),
-            }
-          : bank,
-      ),
-    )
-
-    // Simulate sync
-    setTimeout(() => {
-      setBanks(
-        banks.map((bank) =>
-          bank.id === bankId
-            ? {
-                ...bank,
-                accounts: bank.accounts.map((account) =>
-                  account.id === accountId
-                    ? {
-                        ...account,
-                        status: "connected" as const,
-                        lastSync: new Date().toISOString(),
-                      }
-                    : account,
-                ),
-              }
-            : bank,
-        ),
-      )
-    }, 2000)
-  }
-
-  const handleRemoveAccount = (bankId: string, accountId: string) => {
-    setBanks(
-      banks.map((bank) =>
-        bank.id === bankId
-          ? {
-              ...bank,
-              accounts: bank.accounts.filter((account) => account.id !== accountId),
-            }
-          : bank,
-      ),
-    )
-  }
-
-  const handleRemoveBank = (bankId: string) => {
-    setBanks(banks.filter((bank) => bank.id !== bankId))
-  }
-
-  const getStatusIcon = (status: BankAccount["status"]) => {
-    switch (status) {
-      case "connected":
-        return <CheckCircle className="h-4 w-4 text-green-600" />
-      case "disconnected":
-        return <WifiOff className="h-4 w-4 text-gray-400" />
-      case "syncing":
-        return <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />
-      case "error":
-        return <AlertCircle className="h-4 w-4 text-red-600" />
-    }
-  }
-
-  const getStatusText = (status: BankAccount["status"]) => {
-    switch (status) {
-      case "connected":
-        return "Connected"
-      case "disconnected":
-        return "Disconnected"
-      case "syncing":
-        return "Syncing"
-      case "error":
-        return "Error"
-    }
-  }
-
-  const getStatusVariant = (status: BankAccount["status"]) => {
-    switch (status) {
-      case "connected":
-        return "default"
-      case "disconnected":
-        return "secondary"
-      case "syncing":
-        return "default"
-      case "error":
-        return "destructive"
-    }
-  }
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(value)
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat("en-US", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(dateString))
-  }
-
-  const totalBalance = banks.reduce(
-    (total, bank) =>
-      total +
-      bank.accounts
-        .filter((account) => account.type !== "credit")
-        .reduce((bankTotal, account) => bankTotal + account.balance, 0),
-    0,
-  )
-
-  const totalAccounts = banks.reduce((total, bank) => total + bank.accounts.length, 0)
-  const connectedAccounts = banks.reduce(
-    (total, bank) => total + bank.accounts.filter((account) => account.status === "connected").length,
-    0,
-  )
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Balance</CardTitle>
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold font-montserrat">{formatCurrency(totalBalance)}</div>
-                <p className="text-xs text-muted-foreground">Excluding credit cards</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Connected Accounts</CardTitle>
-                <Wifi className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold font-montserrat">
-                  {connectedAccounts}/{totalAccounts}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {totalAccounts > 0 ? Math.round((connectedAccounts / totalAccounts) * 100) : 0}% synced
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Banks</CardTitle>
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold font-montserrat">{banks.length}</div>
-                <p className="text-xs text-muted-foreground">Connected institutions</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="text-lg font-semibold font-montserrat">Your Banks</h3>
-              <p className="text-sm text-muted-foreground">Manage your financial institutions and accounts</p>
-            </div>
-            <Button onClick={() => setAddBankOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Bank
-            </Button>
-          </div>
-
-          <div className="space-y-6">
-            {banks.map((bank) => (
-              <Card key={bank.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold"
-                        style={{ backgroundColor: bank.color }}
-                      >
-                        <img src={bank.logo || "/placeholder.svg"} alt={bank.name} className="w-8 h-8 rounded" />
-                      </div>
-                      <div>
-                        <CardTitle className="font-montserrat">{bank.name}</CardTitle>
-                        <CardDescription>{bank.accounts.length} account(s) configured</CardDescription>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedBankId(bank.id)
-                          setAddAccountOpen(true)
-                        }}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Account
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleRemoveBank(bank.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {bank.accounts.map((account) => (
-                      <div
-                        key={account.id}
-                        className="flex items-center justify-between p-4 rounded-lg border bg-muted/30"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-2">
-                            {getStatusIcon(account.status)}
-                            <div>
-                              <p className="font-medium">{account.name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {account.type === "checking"
-                                  ? "Checking Account"
-                                  : account.type === "savings"
-                                    ? "Savings"
-                                    : "Credit Card"}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <p className="font-semibold">{formatCurrency(account.balance)}</p>
-                            <p className="text-xs text-muted-foreground">Last sync: {formatDate(account.lastSync)}</p>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <Badge variant={getStatusVariant(account.status)}>{getStatusText(account.status)}</Badge>
-
-                            {account.status !== "syncing" && (
-                              <Button variant="ghost" size="sm" onClick={() => handleSyncAccount(bank.id, account.id)}>
-                                <RefreshCw className="h-4 w-4" />
-                              </Button>
-                            )}
-
-                            <Button variant="ghost" size="sm" onClick={() => handleRemoveAccount(bank.id, account.id)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                    {bank.accounts.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <Building2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p>No accounts configured</p>
-                        <p className="text-sm">Add an account to start syncing</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            {banks.length === 0 && (
-              <Card>
-                <CardContent className="text-center py-12">
-                  <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <h3 className="font-semibold mb-2">No banks configured</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Add your first bank to start managing your finances
-                  </p>
-                  <Button onClick={() => setAddBankOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add First Bank
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-      <AddBankDialog open={addBankOpen} onOpenChange={setAddBankOpen} onAddBank={handleAddBank} />
-      <AddAccountDialog
-        open={addAccountOpen}
-        onOpenChange={setAddAccountOpen}
-        onAddAccount={handleAddAccount}
-        bankName={banks.find((b) => b.id === selectedBankId)?.name || ""}
       />
     </div>
   )

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { TransactionFilters } from "@/components/transactions/transaction-filters"
+import { AddTransactionDialog } from "@/components/transactions/add-transaction-dialog"
+import { EmptyTransactions } from "@/components/ui/empty-states"
 import { usePageConfig } from "@/hooks/use-page-config"
 import { useTransactions } from "@/hooks/use-graphql"
 import { useAuth } from "@/contexts/auth-context"
@@ -24,11 +26,13 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw,
+  Plus,
 } from "lucide-react"
 
 export function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [addTransactionOpen, setAddTransactionOpen] = useState(false)
   const [filters, setFilters] = useState({
     dateRange: "all" as "all" | "7d" | "30d" | "90d",
     type: "all" as "all" | "debit" | "credit",
@@ -87,23 +91,33 @@ export function TransactionsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Carregando transações...</span>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground">Carregando transações...</p>
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-64">
-        <AlertCircle className="h-8 w-8 text-red-500 mb-2" />
-        <span className="text-red-500 mb-4">Erro ao carregar transações: {error}</span>
-        <Button onClick={refetch} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Tentar novamente
-        </Button>
-      </div>
+      <EmptyTransactions
+        onAddTransaction={() => setAddTransactionOpen(true)}
+        onRetry={refetch}
+        isError={true}
+        errorMessage={error}
+      />
+    )
+  }
+
+  if (!transactions || transactions.length === 0) {
+    return (
+      <EmptyTransactions
+        onAddTransaction={() => setAddTransactionOpen(true)}
+        onRetry={refetch}
+        isError={false}
+      />
     )
   }
 
@@ -117,6 +131,10 @@ export function TransactionsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button onClick={() => setAddTransactionOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Transação
+          </Button>
           <Button variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
             Exportar
@@ -286,6 +304,15 @@ export function TransactionsPage() {
           )}
         </CardContent>
       </Card>
+
+      <AddTransactionDialog
+        open={addTransactionOpen}
+        onOpenChange={setAddTransactionOpen}
+        onTransactionAdded={() => {
+          refetch()
+          setAddTransactionOpen(false)
+        }}
+      />
     </div>
   )
 }

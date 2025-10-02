@@ -20,7 +20,7 @@ export function useAuthIntegration() {
   const syncWithBackend = async (googleUser: any) => {
     try {
       // Verificar se o usuário existe no backend
-      const response = await fetch('http://200.103.188.216:4000/graphql', {
+      const response = await fetch('/api/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

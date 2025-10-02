@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { Suspense } from "react"
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
 
@@ -47,5 +48,24 @@ export default function AuthErrorPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <AlertCircle className="w-6 h-6 text-red-600" />
+            </div>
+            <CardTitle className="text-xl">Carregando...</CardTitle>
+          </CardHeader>
+        </Card>
+      </div>
+    }>
+      <AuthErrorContent />
+    </Suspense>
   )
 }

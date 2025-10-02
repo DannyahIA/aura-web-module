@@ -36,15 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (session?.user) {
-      // Usuário logado via Google
-      const googleUser: User = {
-        id: session.user.email || '', // Usar email como ID temporário
-        name: session.user.name || '',
-        email: session.user.email || '',
-        avatar: session.user.image || "/diverse-user-avatars.png"
-      }
-      setUser(googleUser)
-      setIsLoading(false)
+      // Usuário logado via Google - verificar/criar no backend
+      handleGoogleUserAuth(session.user)
     } else {
       // Verificar se há usuário logado via método tradicional
       const storedUser = localStorage.getItem("aura-user")
@@ -56,6 +49,109 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false)
     }
   }, [session, status])
+
+  const handleGoogleUserAuth = async (googleUser: any) => {
+    try {
+      // Primeiro, tentar fazer login com email para ver se o usuário já existe
+      const loginResponse = await fetch('/api/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `
+            query GetUserByEmail($email: String!) {
+              userByEmail(email: $email) {
+                id
+                name
+                email
+                phoneNumber
+                createdAt
+                updatedAt
+              }
+            }
+          `,
+          variables: {
+            email: googleUser.email
+          }
+        })
+      })
+
+      const loginResult = await loginResponse.json()
+      
+      if (loginResult.data?.userByEmail) {
+        // Usuário já existe, usar dados do banco
+        const existingUser: User = {
+          id: loginResult.data.userByEmail.id,
+          name: loginResult.data.userByEmail.name,
+          email: loginResult.data.userByEmail.email,
+          phoneNumber: loginResult.data.userByEmail.phoneNumber,
+          avatar: googleUser.image || "/diverse-user-avatars.png"
+        }
+        setUser(existingUser)
+        localStorage.setItem("aura-user", JSON.stringify(existingUser))
+      } else {
+        // Usuário não existe, criar novo
+        const registerResponse = await fetch('/api/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: `
+              mutation CreateGoogleUser($input: RegisterInput!) {
+                register(input: $input) {
+                  token
+                  user {
+                    id
+                    name
+                    email
+                    phoneNumber
+                    createdAt
+                    updatedAt
+                  }
+                }
+              }
+            `,
+            variables: {
+              input: {
+                name: googleUser.name,
+                email: googleUser.email,
+                password: `google_${googleUser.email}_${Date.now()}` // Password temporária para contas Google
+              }
+            }
+          })
+        })
+
+        const registerResult = await registerResponse.json()
+        
+        if (registerResult.data?.register) {
+          const newUser: User = {
+            id: registerResult.data.register.user.id,
+            name: registerResult.data.register.user.name,
+            email: registerResult.data.register.user.email,
+            phoneNumber: registerResult.data.register.user.phoneNumber,
+            avatar: googleUser.image || "/diverse-user-avatars.png"
+          }
+          setUser(newUser)
+          localStorage.setItem("aura-user", JSON.stringify(newUser))
+          localStorage.setItem("aura-token", registerResult.data.register.token)
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao autenticar usuário Google:', error)
+      // Fallback para método anterior em caso de erro
+      const fallbackUser: User = {
+        id: googleUser.email || '',
+        name: googleUser.name || '',
+        email: googleUser.email || '',
+        avatar: googleUser.image || "/diverse-user-avatars.png"
+      }
+      setUser(fallbackUser)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const loginWithGoogle = async () => {
     try {
@@ -69,8 +165,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true)
 
     try {
-      // Make GraphQL request directly
-      const response = await fetch('http://200.103.188.216:4000/graphql', {
+      // Make GraphQL request via proxy
+      const response = await fetch('/api/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,8 +226,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true)
 
     try {
-      // Make GraphQL request directly
-      const response = await fetch('http://200.103.188.216:4000/graphql', {
+      // Make GraphQL request via proxy
+      const response = await fetch('/api/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
