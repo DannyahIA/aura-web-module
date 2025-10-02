@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { signIn, signOut, useSession } from "next-auth/react"
 import { LoginInput, RegisterInput } from "@/lib/types"
+import { getGraphQLUrl } from "@/lib/config"
 
 interface User {
   id: string
@@ -36,8 +37,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (session?.user) {
-      // Usuário logado via Google - verificar/criar no backend
-      handleGoogleUserAuth(session.user)
+      // Usuário logado via Google - precisamos registrar/buscar no backend
+      handleGoogleUser(session.user)
     } else {
       // Verificar se há usuário logado via método tradicional
       const storedUser = localStorage.getItem("aura-user")
@@ -50,10 +51,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [session, status])
 
-  const handleGoogleUserAuth = async (googleUser: any) => {
+  const handleGoogleUser = async (googleUser: any) => {
     try {
-      // Primeiro, tentar fazer login com email para ver se o usuário já existe
-      const loginResponse = await fetch('/graphql', {
+      // Primeiro, tentar fazer login com o email do Google
+      const loginResponse = await fetch(getGraphQLUrl(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,29 +78,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
       })
 
-      const loginResult = await loginResponse.json()
-      
-      if (loginResult.data?.userByEmail) {
-        // Usuário já existe, usar dados do banco
-        const existingUser: User = {
-          id: loginResult.data.userByEmail.id,
-          name: loginResult.data.userByEmail.name,
-          email: loginResult.data.userByEmail.email,
-          phoneNumber: loginResult.data.userByEmail.phoneNumber,
+      const loginData = await loginResponse.json()
+
+      if (loginData.data?.userByEmail) {
+        // Usuário já existe, usar os dados do backend
+        const backendUser: User = {
+          id: loginData.data.userByEmail.id,
+          name: loginData.data.userByEmail.name,
+          email: loginData.data.userByEmail.email,
+          phoneNumber: loginData.data.userByEmail.phoneNumber,
           avatar: googleUser.image || "/diverse-user-avatars.png"
         }
-        setUser(existingUser)
-        localStorage.setItem("aura-user", JSON.stringify(existingUser))
+        setUser(backendUser)
+        localStorage.setItem("aura-user", JSON.stringify(backendUser))
       } else {
-        // Usuário não existe, criar novo
-        const registerResponse = await fetch('/graphql', {
+        // Usuário não existe, criar no backend
+        const registerResponse = await fetch(getGraphQLUrl(), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             query: `
-              mutation CreateGoogleUser($input: RegisterInput!) {
+              mutation Register($input: RegisterInput!) {
                 register(input: $input) {
                   token
                   user {
@@ -115,39 +116,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             `,
             variables: {
               input: {
-                name: googleUser.name,
+                name: googleUser.name || '',
                 email: googleUser.email,
-                password: `google_${googleUser.email}_${Date.now()}` // Password temporária para contas Google
+                password: 'google-auth-' + Date.now(), // Senha temporária para usuários do Google
+                phoneNumber: ''
               }
             }
           })
         })
 
-        const registerResult = await registerResponse.json()
-        
-        if (registerResult.data?.register) {
+        const registerData = await registerResponse.json()
+
+        if (registerData.data?.register) {
           const newUser: User = {
-            id: registerResult.data.register.user.id,
-            name: registerResult.data.register.user.name,
-            email: registerResult.data.register.user.email,
-            phoneNumber: registerResult.data.register.user.phoneNumber,
+            id: registerData.data.register.user.id,
+            name: registerData.data.register.user.name,
+            email: registerData.data.register.user.email,
+            phoneNumber: registerData.data.register.user.phoneNumber,
             avatar: googleUser.image || "/diverse-user-avatars.png"
           }
           setUser(newUser)
           localStorage.setItem("aura-user", JSON.stringify(newUser))
-          localStorage.setItem("aura-token", registerResult.data.register.token)
+          localStorage.setItem("aura-token", registerData.data.register.token)
         }
       }
     } catch (error) {
-      console.error('Erro ao autenticar usuário Google:', error)
-      // Fallback para método anterior em caso de erro
-      const fallbackUser: User = {
+      console.error('Erro ao processar usuário do Google:', error)
+      // Fallback: usar dados do Google como estavam antes
+      const googleUserFallback: User = {
         id: googleUser.email || '',
         name: googleUser.name || '',
         email: googleUser.email || '',
         avatar: googleUser.image || "/diverse-user-avatars.png"
       }
-      setUser(fallbackUser)
+      setUser(googleUserFallback)
     } finally {
       setIsLoading(false)
     }
@@ -165,8 +167,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true)
 
     try {
-      // Make GraphQL request via proxy
-      const response = await fetch('/graphql', {
+      // Make GraphQL request directly
+      const response = await fetch(getGraphQLUrl(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -214,28 +216,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         console.error("Login errors:", errors)
       }
-
-      const { data, errors } = await response.json()
-
-      if (data?.login && !errors) {
-        const { token, user: userData } = data.login
-        
-        // Store token and user data
-        localStorage.setItem("aura-token", token)
-        localStorage.setItem("aura-user", JSON.stringify(userData))
-        
-        // Set user state with avatar placeholder
-        const userWithAvatar = {
-          ...userData,
-          avatar: "/diverse-user-avatars.png"
-        }
-        
-        setUser(userWithAvatar)
-        setIsLoading(false)
-        return true
-      } else {
-        console.error("Login errors:", errors)
-      }
     } catch (error) {
       console.error("Login error:", error)
     }
@@ -248,8 +228,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true)
 
     try {
-      // Make GraphQL request via proxy
-      const response = await fetch('/graphql', {
+      // Make GraphQL request directly
+      const response = await fetch(getGraphQLUrl(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

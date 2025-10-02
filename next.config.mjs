@@ -9,11 +9,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  env: {
+    GRAPHQL_ENDPOINT: process.env.GRAPHQL_ENDPOINT,
+  },
   async rewrites() {
     return [
       {
-      source: '/graphql',
-      destination: process.env.GRAPHQL_ENDPOINT,
+        source: '/api/graphql',
+        destination: process.env.GRAPHQL_ENDPOINT || 'http://localhost:4000/graphql',
       },
     ]
   },

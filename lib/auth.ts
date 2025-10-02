@@ -1,6 +1,7 @@
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import type { NextAuthOptions } from "next-auth"
+import { env } from "node:process"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -26,7 +27,7 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'google') {
         try {
           // Verificar se o usuário já existe no backend
-          const checkUserResponse = await fetch('/graphql', {
+          const checkUserResponse = await fetch(env.GRAPHQL_ENDPOINT + '/graphql', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -51,7 +52,7 @@ export const authOptions: NextAuthOptions = {
 
           // Se o usuário não existe, criar um novo
           if (!userData?.userByEmail) {
-            const createUserResponse = await fetch('/graphql', {
+            const createUserResponse = await fetch(env.GRAPHQL_ENDPOINT + '/graphql', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

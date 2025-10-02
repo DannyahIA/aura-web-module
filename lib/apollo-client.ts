@@ -2,10 +2,10 @@
 
 import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import { setContext } from '@apollo/client/link/context';
-import { env } from "process";
+import { getGraphQLUrl } from './config';
 
 const httpLink = createHttpLink({
-  uri: env.NEXTAUTH_URL + '/graphql', 
+  uri: getGraphQLUrl(), // URL centralizada na configuração
 });
 
 const authLink = setContext((_, { headers }) => {
