@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth } from "@/contexts/auth-context"
-import { CustomizableDashboard } from "@/components/dashboard/customizable-dashboard"
+import { FluidDashboard } from "@/components/dashboard/fluid-dashboard"
 import { LoginPage } from "@/components/auth/login-page"
 
 export default function HomePage() {
@@ -19,5 +19,9 @@ export default function HomePage() {
     return <LoginPage />
   }
 
-  return <CustomizableDashboard />
+  return (
+    <div className="container mx-auto p-6">
+      <FluidDashboard />
+    </div>
+  )
 }

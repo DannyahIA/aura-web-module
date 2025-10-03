@@ -244,7 +244,7 @@ export const useRealFinancialData = () => {
   };
 
   const processRecentTransactions = (transactions: TransactionType[], banks: BankType[]): RecentTransaction[] => {
-    return transactions
+    return [...transactions] // Create a copy to avoid mutating readonly array
       .sort((a, b) => new Date(b.transactionDate || '').getTime() - new Date(a.transactionDate || '').getTime())
       .slice(0, 5)
       .map(transaction => {

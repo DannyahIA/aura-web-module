@@ -31,6 +31,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import type { Widget, WidgetConfig } from '@/lib/dashboard-config';
+import { WidgetContent } from './widget-content';
 
 interface ResizableWidgetProps {
   id: string;
@@ -40,7 +41,6 @@ interface ResizableWidgetProps {
   onRemove: () => void;
   onSizeChange: (id: string, size: string) => void;
   onConfigChange: (id: string, config: WidgetConfig) => void;
-  children: React.ReactNode;
 }
 
 export function ResizableWidget({ 
@@ -50,41 +50,41 @@ export function ResizableWidget({
   editMode, 
   onRemove, 
   onSizeChange, 
-  onConfigChange,
-  children 
+  onConfigChange
 }: ResizableWidgetProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ 
+    id,
+    disabled: !editMode // Disable sorting when not in edit mode
+  });
   const [isResizing, setIsResizing] = useState(false);
+  const [previewSize, setPreviewSize] = useState<string | null>(null);
   const [startSize, setStartSize] = useState({ width: 0, height: 0 });
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const widgetRef = useRef<HTMLDivElement>(null);
+  const previewSizeRef = useRef<string | null>(null);
+  const resizeHandlersRef = useRef<{
+    move: ((e: MouseEvent) => void) | null;
+    end: (() => void) | null;
+  }>({ move: null, end: null });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition: isResizing ? 'none' : transition,
   };
+  
+  // Keep previewSizeRef in sync with previewSize state
+  useEffect(() => {
+    previewSizeRef.current = previewSize;
+  }, [previewSize]);
 
-  // Size mapping for grid classes
-  const getSizeClasses = (size: string) => {
+  // Size mapping using CSS Grid properties directly
+  const getSizeStyle = (size: string) => {
     const [cols, rows] = size.split('x').map(Number);
     
-    // Base classes for responsiveness
-    let classes = 'col-span-full';
-    
-    // Medium screens
-    if (cols === 1) classes += ' md:col-span-1';
-    else if (cols === 2) classes += ' md:col-span-2';
-    else if (cols >= 3) classes += ' md:col-span-full';
-    
-    // Large screens
-    classes += ` lg:col-span-${Math.min(cols, 4)}`;
-    
-    // Row span (height)
-    if (rows > 1) {
-      classes += ` row-span-${Math.min(rows, 4)}`;
-    }
-    
-    return classes;
+    return {
+      gridColumn: `span ${cols}`,
+      gridRow: `span ${rows}`,
+    };
   };
 
   // Available sizes with labels
@@ -114,72 +114,101 @@ export function ResizableWidget({
     if (!widgetRef.current) return;
     
     const rect = widgetRef.current.getBoundingClientRect();
-    setStartSize({ width: rect.width, height: rect.height });
-    setStartPosition({ x: e.clientX, y: e.clientY });
+    const startSizeData = { width: rect.width, height: rect.height };
+    const startPosData = { x: e.clientX, y: e.clientY };
+    
+    setStartSize(startSizeData);
+    setStartPosition(startPosData);
     setIsResizing(true);
     
-    document.addEventListener('mousemove', handleResizeMove);
-    document.addEventListener('mouseup', handleResizeEnd);
-  }, []);
-
-  const handleResizeMove = useCallback((e: MouseEvent) => {
-    if (!isResizing || !widgetRef.current) return;
+    const handleMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startPosData.x;
+      const deltaY = moveEvent.clientY - startPosData.y;
+      
+      // Calculate new size based on grid increments
+      const gridWidth = 304; // 280px + 24px gap
+      const gridHeight = 224; // 200px + 24px gap
+      
+      const newCols = Math.max(1, Math.round((startSizeData.width + deltaX) / gridWidth));
+      const newRows = Math.max(1, Math.round((startSizeData.height + deltaY) / gridHeight));
+      
+      // Clamp to reasonable limits
+      const cols = Math.min(4, newCols);
+      const rows = Math.min(4, newRows);
+      
+      const newSize = `${cols}x${rows}`;
+      
+      // Update preview size in real-time
+      if (widget.availableSizes.includes(newSize)) {
+        setPreviewSize(newSize);
+      }
+    };
     
-    const deltaX = e.clientX - startPosition.x;
-    const deltaY = e.clientY - startPosition.y;
+    const handleEnd = () => {
+      setIsResizing(false);
+      
+      // Apply the final size change using the ref (which has the latest value)
+      const finalSize = previewSizeRef.current;
+      if (finalSize && finalSize !== widget.currentSize) {
+        console.log('Applying size change:', widget.id, finalSize);
+        onSizeChange(widget.id, finalSize);
+      }
+      
+      setPreviewSize(null);
+      previewSizeRef.current = null;
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleEnd);
+    };
     
-    // Calculate new size based on grid increments
-    const gridWidth = 250; // Approximate widget width
-    const gridHeight = 200; // Approximate widget height
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleEnd);
     
-    const newCols = Math.max(1, Math.round((startSize.width + deltaX) / gridWidth));
-    const newRows = Math.max(1, Math.round((startSize.height + deltaY) / gridHeight));
-    
-    // Clamp to reasonable limits
-    const cols = Math.min(4, newCols);
-    const rows = Math.min(4, newRows);
-    
-    const newSize = `${cols}x${rows}`;
-    
-    // Only update if it's an available size
-    if (widget.availableSizes.includes(newSize) && newSize !== widget.currentSize) {
-      onSizeChange(widget.id, newSize);
-    }
-  }, [isResizing, startPosition, startSize, widget.availableSizes, widget.currentSize, widget.id, onSizeChange]);
-
-  const handleResizeEnd = useCallback(() => {
-    setIsResizing(false);
-    document.removeEventListener('mousemove', handleResizeMove);
-    document.removeEventListener('mouseup', handleResizeEnd);
-  }, [handleResizeMove]);
+    // Store handlers for cleanup
+    resizeHandlersRef.current = { move: handleMove, end: handleEnd };
+  }, [widget.availableSizes, widget.currentSize, widget.id, onSizeChange]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      document.removeEventListener('mousemove', handleResizeMove);
-      document.removeEventListener('mouseup', handleResizeEnd);
+      if (resizeHandlersRef.current.move) {
+        document.removeEventListener('mousemove', resizeHandlersRef.current.move);
+      }
+      if (resizeHandlersRef.current.end) {
+        document.removeEventListener('mouseup', resizeHandlersRef.current.end);
+      }
     };
-  }, [handleResizeMove, handleResizeEnd]);
+  }, []);
+
+  const sizeStyle = getSizeStyle(previewSize || widget.currentSize);
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        gridColumn: sizeStyle.gridColumn,
+        gridRow: sizeStyle.gridRow,
+      }}
+      data-widget-id={widget.id}
+      data-widget-size={widget.currentSize}
       className={cn(
-        getSizeClasses(widget.currentSize),
-        "relative group",
+        "relative group w-full h-full",
+        "min-h-[200px]", // Ensure minimum height
+        "transition-all duration-200 ease-out", // Smooth transition
         isDragging && "opacity-50 z-10",
-        isResizing && "z-20"
+        isResizing && "z-20 scale-[1.02]" // Scale up slightly when resizing
       )}
     >
       <Card 
         ref={widgetRef}
         className={cn(
-          "h-full transition-all flex flex-col relative overflow-hidden",
+          "w-full h-full min-h-[200px] transition-all duration-200 ease-out flex flex-col relative overflow-hidden",
           editMode && "ring-2 ring-primary/50",
           isDragging && "ring-primary ring-4 shadow-2xl",
-          isResizing && "ring-blue-500 ring-4 shadow-xl"
+          isResizing && "ring-blue-500 ring-4 shadow-2xl scale-[1.01]",
+          !editMode && "cursor-move hover:ring-2 hover:ring-primary/30"
         )}
+        {...(!editMode ? { ...attributes, ...listeners } : {})}
       >
         {/* Edit Mode Controls */}
         {editMode && (
@@ -270,18 +299,54 @@ export function ResizableWidget({
 
             {/* Resize Handle */}
             <div
-              className="absolute bottom-1 right-1 z-20 cursor-nw-resize opacity-0 group-hover:opacity-100 transition-opacity"
+              className={cn(
+                "absolute bottom-1 right-1 z-20 cursor-nwse-resize transition-all duration-200",
+                "opacity-0 group-hover:opacity-100",
+                isResizing && "opacity-100 scale-125"
+              )}
               onMouseDown={handleResizeStart}
             >
-              <div className="w-4 h-4 bg-primary/20 border-2 border-primary/40 rounded-sm flex items-center justify-center hover:bg-primary/30">
-                <Move3D className="h-2 w-2 text-primary" />
+              <div className={cn(
+                "w-5 h-5 bg-primary/30 border-2 border-primary/60 rounded-md",
+                "flex items-center justify-center",
+                "hover:bg-primary/40 hover:border-primary/80",
+                "transition-all duration-200",
+                "shadow-lg",
+                isResizing && "bg-blue-500/40 border-blue-500/80 shadow-xl animate-pulse"
+              )}>
+                <Move3D className={cn(
+                  "h-3 w-3 text-primary transition-all duration-200",
+                  isResizing && "text-blue-500 scale-110"
+                )} />
               </div>
             </div>
 
+            {/* Resize Overlay */}
+            {isResizing && (
+              <div className="absolute inset-0 bg-blue-500/5 backdrop-blur-[2px] border-2 border-blue-500/30 rounded-xl z-10 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-blue-500/10 animate-pulse" />
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <div className="px-4 py-2 bg-blue-500/20 backdrop-blur-md border-2 border-blue-500/40 rounded-lg">
+                    <p className="text-sm font-bold text-blue-600">
+                      Resizing to {previewSize || widget.currentSize}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Size Indicator */}
-            <div className="absolute bottom-1 left-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="px-2 py-1 bg-background/90 border rounded text-xs font-medium text-muted-foreground">
-                {widget.currentSize}
+            <div className={cn(
+              "absolute bottom-1 left-1 z-20 transition-all duration-200",
+              "opacity-0 group-hover:opacity-100",
+              isResizing && "opacity-100"
+            )}>
+              <div className={cn(
+                "px-3 py-1.5 bg-background/95 backdrop-blur-sm border-2 rounded-md text-xs font-bold",
+                "transition-all duration-200 shadow-lg",
+                isResizing ? "border-blue-500/60 text-blue-600 scale-110" : "border-border text-muted-foreground"
+              )}>
+                {previewSize || widget.currentSize}
               </div>
             </div>
           </>
@@ -289,7 +354,11 @@ export function ResizableWidget({
 
         {/* Widget Content */}
         <div className="flex-1 flex flex-col min-h-0">
-          {children}
+          <WidgetContent 
+            widget={widget} 
+            config={config}
+            className="h-full border-none shadow-none"
+          />
         </div>
       </Card>
     </div>

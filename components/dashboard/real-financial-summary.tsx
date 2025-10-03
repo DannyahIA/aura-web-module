@@ -3,12 +3,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, DollarSign, CreditCard, Wallet, Target } from 'lucide-react';
 import { useRealFinancialData } from '@/hooks/use-real-financial-data';
+import type { WidgetConfig } from '@/lib/dashboard-config';
 
 interface FinancialSummaryWidgetProps {
   className?: string;
+  config?: WidgetConfig;
 }
 
-export function FinancialSummaryWidget({ className }: FinancialSummaryWidgetProps) {
+export function FinancialSummaryWidget({ className, config = {} }: FinancialSummaryWidgetProps) {
   const { summary, loading } = useRealFinancialData();
   
   if (loading) {
@@ -31,9 +33,10 @@ export function FinancialSummaryWidget({ className }: FinancialSummaryWidgetProp
   }
 
   const formatCurrency = (amount: number) => {
+    const currency = config.currency || 'USD';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
@@ -101,12 +104,16 @@ export function FinancialSummaryWidget({ className }: FinancialSummaryWidgetProp
             {formatCurrency(summary.netIncome)}
           </div>
           <p className={`text-xs flex items-center ${isPositiveChange ? 'text-emerald-600' : 'text-rose-600'}`}>
-            {isPositiveChange ? (
-              <TrendingUp className="mr-1 h-3 w-3" />
-            ) : (
-              <TrendingDown className="mr-1 h-3 w-3" />
+            {config.showPercentages !== false && (
+              <>
+                {isPositiveChange ? (
+                  <TrendingUp className="mr-1 h-3 w-3" />
+                ) : (
+                  <TrendingDown className="mr-1 h-3 w-3" />
+                )}
+                {formatPercentage(summary.monthlyChange)} from last month
+              </>
             )}
-            {formatPercentage(summary.monthlyChange)} from last month
           </p>
         </CardContent>
       </Card>

@@ -144,3 +144,75 @@
   filter: blur(100px);
   animation: aurora 20s infinite ease-in-out;
 }
+
+/* Dashboard Grid Enhancements */
+@layer utilities {
+  .grid-auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  
+  .grid-auto-fill {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+  
+  /* Grid row spans for dashboard widgets */
+  .row-span-1 { grid-row: span 1 / span 1; }
+  .row-span-2 { grid-row: span 2 / span 2; }
+  .row-span-3 { grid-row: span 3 / span 3; }
+  .row-span-4 { grid-row: span 4 / span 4; }
+  .row-span-5 { grid-row: span 5 / span 5; }
+  .row-span-6 { grid-row: span 6 / span 6; }
+  
+  /* Grid column spans for dashboard widgets */
+  .col-span-5 { grid-column: span 5 / span 5; }
+  .col-span-6 { grid-column: span 6 / span 6; }
+  
+  /* Dashboard specific heights */
+  .dashboard-widget-sm { min-height: 200px; }
+  .dashboard-widget-md { min-height: 300px; }
+  .dashboard-widget-lg { min-height: 400px; }
+  .dashboard-widget-xl { min-height: 500px; }
+  
+  /* Widget resize handle */
+  .resize-handle {
+    @apply absolute bottom-1 right-1 w-4 h-4 cursor-nw-resize;
+    @apply bg-gradient-to-br from-primary/20 to-primary/40;
+    @apply border-2 border-primary/60 rounded-sm;
+    @apply opacity-0 transition-opacity duration-200;
+    @apply hover:opacity-100 hover:bg-primary/50;
+  }
+  
+  .resize-handle::before {
+    content: '';
+    @apply absolute inset-0 bg-primary/20 rounded-sm;
+    @apply transition-all duration-200;
+  }
+  
+  .resize-handle:hover::before {
+    @apply bg-primary/30 scale-110;
+  }
+}
+
+/* Widget transitions and animations */
+@layer components {
+  .widget-container {
+    @apply transition-all duration-300 ease-in-out;
+    @apply hover:shadow-lg hover:shadow-primary/5;
+  }
+  
+  .widget-edit-mode {
+    @apply ring-2 ring-primary/30 ring-offset-2 ring-offset-background;
+    @apply shadow-lg shadow-primary/10;
+  }
+  
+  .widget-dragging {
+    @apply rotate-3 scale-105 shadow-2xl shadow-primary/20;
+    @apply ring-4 ring-primary ring-offset-4 ring-offset-background;
+    @apply z-50;
+  }
+  
+  .widget-resizing {
+    @apply ring-4 ring-blue-500 ring-offset-2 ring-offset-background;
+    @apply shadow-xl shadow-blue-500/20;
+  }
+}

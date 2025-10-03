@@ -25,6 +25,30 @@ export interface Widget {
   enabled: boolean;
 }
 
+// Widget configuration interface
+export interface WidgetConfig {
+  // Common config
+  refreshInterval?: number;
+  showHeader?: boolean;
+  
+  // Financial widgets
+  currency?: string;
+  timePeriod?: string;
+  showPercentages?: boolean;
+  chartType?: string;
+  
+  // Transaction widgets
+  transactionCount?: number;
+  showBankNames?: boolean;
+  
+  // Chart widgets
+  showLegend?: boolean;
+  animateOnLoad?: boolean;
+  
+  // Any other custom config
+  [key: string]: any;
+}
+
 export const WIDGET_COMPONENTS: Record<string, React.ComponentType<any>> = {
   "quick-stats": QuickStatsWidget,
   "upcoming-bills": UpcomingBillsWidget,
@@ -41,13 +65,13 @@ export const WIDGET_COMPONENTS: Record<string, React.ComponentType<any>> = {
 
 // UPDATED WIDGETS with new sizes
 export const DEFAULT_WIDGETS: Widget[] = [
-  { id: "financial-summary", type: "financial-summary", title: "Financial Summary", currentSize: '4x1', availableSizes: ['4x1', '2x2'], enabled: true },
-  { id: "spending-breakdown", type: "spending-breakdown", title: "Spending Breakdown", currentSize: '2x2', availableSizes: ['2x2', '4x1'], enabled: true },
-  { id: "monthly-trends", type: "monthly-trends", title: "Monthly Trends", currentSize: '2x2', availableSizes: ['2x2', '4x1'], enabled: true },
-  { id: "recent-transactions", type: "recent-transactions", title: "Recent Transactions", currentSize: '4x1', availableSizes: ['4x1', '2x2'], enabled: true },
-  { id: "ai-suggestions", type: "ai-suggestions", title: "AI Suggestions", currentSize: '4x1', availableSizes: ['4x1', '2x2'], enabled: true },
-  { id: "weather", type: "weather", title: "Weather", currentSize: '1x1', availableSizes: ['1x1', '2x1'], enabled: false },
-  { id: "calendar", type: "calendar", title: "Calendar", currentSize: '2x2', availableSizes: ['2x2', '2x1', '4x1'], enabled: false },
+  { id: "financial-summary", type: "financial-summary", title: "Financial Summary", currentSize: '4x1', availableSizes: ['2x1', '3x1', '4x1', '2x2', '3x2', '4x2'], enabled: true },
+  { id: "spending-breakdown", type: "spending-breakdown", title: "Spending Breakdown", currentSize: '2x2', availableSizes: ['2x2', '3x2', '2x3', '3x3'], enabled: true },
+  { id: "monthly-trends", type: "monthly-trends", title: "Monthly Trends", currentSize: '2x2', availableSizes: ['2x2', '3x2', '4x2', '2x3', '3x3'], enabled: true },
+  { id: "recent-transactions", type: "recent-transactions", title: "Recent Transactions", currentSize: '2x2', availableSizes: ['2x1', '3x1', '4x1', '2x2', '3x2', '2x3'], enabled: true },
+  { id: "ai-suggestions", type: "ai-suggestions", title: "AI Suggestions", currentSize: '4x1', availableSizes: ['2x1', '3x1', '4x1', '2x2', '3x2'], enabled: true },
+  { id: "weather", type: "weather", title: "Weather", currentSize: '1x1', availableSizes: ['1x1', '1x2', '2x1', '2x2'], enabled: false },
+  { id: "calendar", type: "calendar", title: "Calendar", currentSize: '2x2', availableSizes: ['2x2', '2x3', '3x2', '3x3'], enabled: false },
 ];
 
 export const WIDGET_DESCRIPTIONS: Record<string, string> = {

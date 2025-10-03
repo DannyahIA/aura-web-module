@@ -5,11 +5,12 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Settings, Plus, RotateCcw, LayoutGrid } from "lucide-react";
+import { Settings, Plus, RotateCcw, LayoutGrid, Palette } from "lucide-react";
 import { usePageConfig } from "@/hooks/use-page-config";
 import { useDashboardLayout } from "@/hooks/use-dashboard-layout";
+import { useWidgetConfigs } from "@/hooks/use-widget-configs";
 
-import { SortableWidget } from "./sortable-widget";
+import { ResizableWidget } from "./resizable-widget";
 import { WidgetSelector } from "./widget-selector";
 import { WIDGET_COMPONENTS } from "@/lib/dashboard-config";
 
@@ -32,6 +33,13 @@ export function CustomizableDashboard() {
     resetLayout,
     changeWidgetSize,
   } = useDashboardLayout();
+
+  const {
+    configs,
+    updateConfig,
+    getConfig,
+    resetAllConfigs,
+  } = useWidgetConfigs();
 
   usePageConfig({
     page: "dashboard",
@@ -77,16 +85,18 @@ export function CustomizableDashboard() {
             {enabledWidgets.map((widget) => {
               const WidgetContent = WIDGET_COMPONENTS[widget.type];
               return (
-                <SortableWidget
+                <ResizableWidget
                   key={widget.id}
                   id={widget.id}
                   widget={widget}
+                  config={getConfig(widget.id)}
                   editMode={editMode}
                   onRemove={() => toggleWidget(widget.id)}
-                  onSizeChange={changeWidgetSize} 
+                  onSizeChange={changeWidgetSize}
+                  onConfigChange={updateConfig}
                 >
-                  {WidgetContent ? <WidgetContent /> : <div>Widget Unavailable</div>}
-                </SortableWidget>
+                  {WidgetContent ? <WidgetContent config={getConfig(widget.id)} /> : <div>Widget Unavailable</div>}
+                </ResizableWidget>
               );
             })}
             

@@ -4,13 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CreditCard, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useRealFinancialData } from '@/hooks/use-real-financial-data';
+import type { WidgetConfig } from '@/lib/dashboard-config';
 
 interface RecentTransactionsWidgetProps {
   className?: string;
+  config?: WidgetConfig;
 }
 
-export function RecentTransactionsWidget({ className }: RecentTransactionsWidgetProps) {
+export function RecentTransactionsWidget({ className, config = {} }: RecentTransactionsWidgetProps) {
   const { recentTransactions, loading } = useRealFinancialData();
+  
+  const transactionCount = config.transactionCount || 5;
+  const showBankNames = config.showBankNames !== false;
+  
+  const displayTransactions = recentTransactions.slice(0, transactionCount);
 
   if (loading) {
     return (
@@ -76,7 +83,7 @@ export function RecentTransactionsWidget({ className }: RecentTransactionsWidget
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {recentTransactions.map((transaction) => {
+          {displayTransactions.map((transaction) => {
             const isPositive = transaction.amount >= 0;
             const icon = isPositive ? ArrowUpRight : ArrowDownRight;
             const amountColor = isPositive ? 'text-emerald-600' : 'text-rose-600';
@@ -107,7 +114,7 @@ export function RecentTransactionsWidget({ className }: RecentTransactionsWidget
                       {formatDate(transaction.date)}
                     </p>
                     
-                    {transaction.bankName && (
+                    {showBankNames && transaction.bankName && (
                       <>
                         <span className="text-muted-foreground">•</span>
                         <Badge variant="outline" className="text-xs">
