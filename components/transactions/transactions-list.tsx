@@ -10,7 +10,8 @@ import {
   Wallet,
   DollarSign,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -20,6 +21,7 @@ import { formatCurrency, formatShortDate, EnhancedTransaction } from '@/hooks/us
 interface TransactionsListProps {
   transactions: EnhancedTransaction[];
   onEditTransaction: (transaction: EnhancedTransaction) => void;
+  onDeleteTransaction: (transaction: EnhancedTransaction) => void;
   isLoading?: boolean;
   noResultsMessage?: string;
   filterQuery?: string;
@@ -34,6 +36,7 @@ interface TransactionsListProps {
 export function TransactionsList({
   transactions,
   onEditTransaction,
+  onDeleteTransaction,
   isLoading = false,
   noResultsMessage = "No transactions found",
   filterQuery = "",
@@ -74,7 +77,8 @@ export function TransactionsList({
           <TransactionItem 
             key={transaction.id} 
             transaction={transaction} 
-            onEdit={() => onEditTransaction(transaction)} 
+            onEdit={() => onEditTransaction(transaction)}
+            onDelete={() => onDeleteTransaction(transaction)}
           />
         ))}
       </div>
@@ -125,9 +129,10 @@ export function TransactionsList({
 interface TransactionItemProps {
   transaction: EnhancedTransaction;
   onEdit: () => void;
+  onDelete: () => void;
 }
 
-function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
+function TransactionItem({ transaction, onEdit, onDelete }: TransactionItemProps) {
   const isPositive = (transaction.amount || 0) >= 0;
   const icon = getTransactionIcon(transaction.type);
   const formattedAmount = formatCurrency(transaction.amount, transaction.currency);
@@ -172,15 +177,27 @@ function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
               {transaction.status}
             </Badge>
             
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 opacity-0 group-hover:opacity-100"
-              onClick={onEdit}
-            >
-              <Edit className="h-4 w-4" />
-              <span className="sr-only">Edit transaction</span>
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                onClick={onEdit}
+              >
+                <Edit className="h-4 w-4" />
+                <span className="sr-only">Edit transaction</span>
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
+                onClick={onDelete}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete transaction</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>

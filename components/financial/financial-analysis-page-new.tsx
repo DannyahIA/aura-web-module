@@ -8,14 +8,6 @@ import { FinancialFilters } from "@/components/financial/financial-filters"
 import { SpendingChart } from "@/components/financial/spending-chart"
 import { CategoryBreakdown } from "@/components/financial/category-breakdown"
 import { MonthlyComparison } from "@/components/financial/monthly-comparison"
-import { EvolutionLineChart } from "@/components/financial/evolution-line-chart"
-import { ComparativeBarChart } from "@/components/financial/comparative-bar-chart"
-import { StackedAreaChart } from "@/components/financial/stacked-area-chart"
-import { WaterfallChart } from "@/components/financial/waterfall-chart"
-import { FinancialHealthRadar } from "@/components/financial/financial-health-radar"
-import { FinancialGoalsTracker } from "@/components/financial/financial-goals-tracker"
-import { AISuggestionsDisplay } from "@/components/financial/ai-suggestions-display"
-import { AIMockDemo } from "@/components/financial/ai-mock-demo"
 import { EmptyAnalytics } from "@/components/ui/empty-states"
 import {
   TrendingUp,
@@ -29,15 +21,9 @@ import {
   PieChart,
   LineChart,
   RefreshCw,
-  Activity,
-  Radar,
-  BarChart2,
-  Zap,
 } from "lucide-react"
 import { usePageConfig } from "@/hooks/use-page-config"
 import { useFinancialAnalysis } from "@/hooks/use-financial-analysis"
-import { useAIFinancialSuggestions } from "@/hooks/use-ai-financial-suggestions"
-import { useFinancialGoals } from "@/hooks/use-financial-goals"
 
 export function FinancialAnalysisPage() {
   const { 
@@ -49,32 +35,13 @@ export function FinancialAnalysisPage() {
     getFilterOptions,
     refetch 
   } = useFinancialAnalysis();
-
-  const {
-    goals,
-    loading: goalsLoading,
-    addGoal,
-    updateGoal,
-    deleteGoal
-  } = useFinancialGoals();
-
-  const {
-    suggestions,
-    predictions,
-    totalPotentialSavings,
-    acceptSuggestion,
-    rejectSuggestion,
-    implementSuggestion,
-    loading: aiLoading
-  } = useAIFinancialSuggestions();
   
-  const [activeView, setActiveView] = useState<"overview" | "evolution" | "spending" | "categories" | "comparison" | "health" | "goals" | "analysis" | "ai">("overview")
+  const [activeView, setActiveView] = useState<"overview" | "spending" | "categories" | "comparison">("overview")
   const [filtersOpen, setFiltersOpen] = useState(false)
   
   usePageConfig({
-    page: "finances",
     title: "Financial Analysis",
-    subtitle: "Analyze your spending patterns and financial health",
+    description: "Analyze your spending patterns and financial health",
   })
 
   const formatCurrency = (value: number) => {
@@ -129,9 +96,10 @@ export function FinancialAnalysisPage() {
         </div>
         
         <EmptyAnalytics 
-          onRetry={() => refetch()}
-          isError={!!error}
-          errorMessage={error || undefined}
+          title="No financial data available"
+          description="Start by adding some transactions to see your financial analysis."
+          actionLabel="Add Transaction"
+          onAction={() => window.location.href = '/transactions'}
         />
       </div>
     );
@@ -240,7 +208,7 @@ export function FinancialAnalysisPage() {
       )}
 
       {/* View Navigation */}
-      <div className="mb-6 flex flex-wrap gap-2">
+      <div className="mb-6 flex gap-2">
         <Button
           variant={activeView === "overview" ? "default" : "outline"}
           size="sm"
@@ -250,20 +218,12 @@ export function FinancialAnalysisPage() {
           Overview
         </Button>
         <Button
-          variant={activeView === "evolution" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setActiveView("evolution")}
-        >
-          <Activity className="h-4 w-4 mr-2" />
-          Evolução
-        </Button>
-        <Button
           variant={activeView === "spending" ? "default" : "outline"}
           size="sm"
           onClick={() => setActiveView("spending")}
         >
           <LineChart className="h-4 w-4 mr-2" />
-          Gastos
+          Spending
         </Button>
         <Button
           variant={activeView === "categories" ? "default" : "outline"}
@@ -271,39 +231,7 @@ export function FinancialAnalysisPage() {
           onClick={() => setActiveView("categories")}
         >
           <PieChart className="h-4 w-4 mr-2" />
-          Categorias
-        </Button>
-        <Button
-          variant={activeView === "analysis" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setActiveView("analysis")}
-        >
-          <BarChart2 className="h-4 w-4 mr-2" />
-          Análises
-        </Button>
-        <Button
-          variant={activeView === "health" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setActiveView("health")}
-        >
-          <Radar className="h-4 w-4 mr-2" />
-          Saúde
-        </Button>
-        <Button
-          variant={activeView === "goals" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setActiveView("goals")}
-        >
-          <Target className="h-4 w-4 mr-2" />
-          Objetivos
-        </Button>
-        <Button
-          variant={activeView === "ai" ? "default" : "outline"}
-          size="sm"
-          onClick={() => setActiveView("ai")}
-        >
-          <Zap className="h-4 w-4 mr-2" />
-          IA
+          Categories
         </Button>
         <Button
           variant={activeView === "comparison" ? "default" : "outline"}
@@ -311,7 +239,7 @@ export function FinancialAnalysisPage() {
           onClick={() => setActiveView("comparison")}
         >
           <Calendar className="h-4 w-4 mr-2" />
-          Comparação
+          Comparison
         </Button>
       </div>
 
@@ -447,75 +375,10 @@ export function FinancialAnalysisPage() {
         </div>
       )}
 
-      {/* Evolution Tab */}
-      {activeView === "evolution" && (
-        <div className="space-y-6">
-          <EvolutionLineChart 
-            data={financialData.monthlyData}
-            showPrediction={true}
-          />
-          <ComparativeBarChart data={financialData.monthlyData} />
-        </div>
-      )}
-
-      {/* Analysis Tab */}
-      {activeView === "analysis" && (
-        <div className="space-y-6">
-          <StackedAreaChart data={financialData.monthlyData} />
-          {financialData.monthlyData.length > 0 && (
-            <WaterfallChart monthData={financialData.monthlyData[0]} />
-          )}
-        </div>
-      )}
-
-      {/* Health Tab */}
-      {activeView === "health" && (
-        <div className="space-y-6">
-          <FinancialHealthRadar 
-            data={financialData} 
-            previousData={undefined} // TODO: Add previous period data
-          />
-        </div>
-      )}
-
-      {/* Goals Tab */}
-      {activeView === "goals" && (
-        <div className="space-y-6">
-          <FinancialGoalsTracker 
-            goals={goals}
-            onAddGoal={() => console.log('Add goal - TODO: Implement dialog')}
-            onEditGoal={(goalId) => console.log('Edit goal:', goalId)}
-          />
-        </div>
-      )}
-
-      {/* AI Tab */}
-      {activeView === "ai" && (
-        <div className="space-y-6">
-          {/* Demo temporário - será substituído pela integração real */}
-          <AIMockDemo />
-          
-          {/* Componente real (quando integrado) */}
-          {/* 
-          <AISuggestionsDisplay
-            suggestions={suggestions}
-            predictions={predictions}
-            onAcceptSuggestion={acceptSuggestion}
-            onRejectSuggestion={rejectSuggestion}
-            onImplementSuggestion={implementSuggestion}
-            totalPotentialSavings={totalPotentialSavings}
-          />
-          */}
-        </div>
-      )}
-
       {/* Comparison Tab */}
       {activeView === "comparison" && (
         <div className="space-y-6">
-          <MonthlyComparison 
-            currentMonth={financialData.monthlyData[0] || null}
-            previousMonth={financialData.monthlyData[1] || null}
-          />
+          <MonthlyComparison data={financialData.monthlyData} />
         </div>
       )}
     </div>

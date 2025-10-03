@@ -170,6 +170,18 @@ export const useEnhancedTransactions = () => {
     return 'Completed';
   };
 
+  // Helper function to enhance a transaction with computed fields
+  const enhanceTransaction = (transaction: TransactionType): EnhancedTransaction => {
+    const bankName = banks.find(bank => bank.id === transaction.bankId)?.name;
+    const status = determineTransactionStatus(transaction);
+    
+    return {
+      ...transaction,
+      status,
+      bankName
+    };
+  };
+
   // Create a new transaction
   const createTransaction = async (input: {
     bankId: string;
@@ -187,14 +199,20 @@ export const useEnhancedTransactions = () => {
         variables: { input },
         refetchQueries: [
           { query: GET_TRANSACTIONS_BY_USER_ID, variables: { userId: user?.id } }
-        ]
+        ],
+        awaitRefetchQueries: true
       });
       
       console.log('Transaction created successfully:', data);
       
-      // Refetch to update the list
-      await fetchTransactions();
-      return (data as any)?.createTransaction;
+      // Update local state immediately
+      const newTransaction = (data as any)?.createTransaction;
+      if (newTransaction) {
+        const enhancedTransaction = enhanceTransaction(newTransaction);
+        setTransactions(prev => [enhancedTransaction, ...prev]);
+      }
+      
+      return newTransaction;
     } catch (err) {
       console.error('Error creating transaction:', err);
       throw new Error(err instanceof Error ? err.message : 'Error creating transaction');
@@ -217,14 +235,22 @@ export const useEnhancedTransactions = () => {
         variables: { id, input },
         refetchQueries: [
           { query: GET_TRANSACTIONS_BY_USER_ID, variables: { userId: user?.id } }
-        ]
+        ],
+        awaitRefetchQueries: true
       });
       
       console.log('Transaction updated successfully:', data);
       
-      // Refetch to update the list
-      await fetchTransactions();
-      return (data as any)?.updateTransaction;
+      // Update local state immediately
+      const updatedTransaction = (data as any)?.updateTransaction;
+      if (updatedTransaction) {
+        const enhancedTransaction = enhanceTransaction(updatedTransaction);
+        setTransactions(prev => 
+          prev.map(t => t.id === id ? enhancedTransaction : t)
+        );
+      }
+      
+      return updatedTransaction;
     } catch (err) {
       console.error('Error updating transaction:', err);
       throw new Error(err instanceof Error ? err.message : 'Error updating transaction');
@@ -241,13 +267,15 @@ export const useEnhancedTransactions = () => {
         variables: { id },
         refetchQueries: [
           { query: GET_TRANSACTIONS_BY_USER_ID, variables: { userId: user?.id } }
-        ]
+        ],
+        awaitRefetchQueries: true
       });
       
       console.log('Transaction deleted successfully:', data);
       
-      // Refetch to update the list
-      await fetchTransactions();
+      // Update local state immediately
+      setTransactions(prev => prev.filter(t => t.id !== id));
+      
       return (data as any)?.deleteTransaction;
     } catch (err) {
       console.error('Error deleting transaction:', err);

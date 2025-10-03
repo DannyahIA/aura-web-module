@@ -21,13 +21,15 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen min-w-screen">
+      <div className="flex min-h-screen min-w-screen bg-background">
         <AppSidebar />
 
         <div className="flex-1 flex flex-col">
           <Header title={pageTitle} subtitle={pageSubtitle} />
-          <main className="p-4 lg:p-6 flex-1">
-            {children}
+          <main className="p-6 lg:p-8 flex-1 bg-background/50">
+            <div className="max-w-7xl mx-auto">
+              {children}
+            </div>
           </main>
         </div>
       </div>

@@ -4,6 +4,16 @@ import { useState, useEffect } from 'react';
 import { PlusCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -47,6 +57,10 @@ export function TransactionsPage() {
   const [selectedTransaction, setSelectedTransaction] = useState<EnhancedTransaction | undefined>(undefined);
   const [bankFilterOptions, setBankFilterOptions] = useState<{label: string, value: string}[]>([]);
   const [allUserBanks, setAllUserBanks] = useState<{label: string, value: string}[]>([]);
+  
+  // Delete confirmation dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<EnhancedTransaction | undefined>(undefined);
 
   // Update bank options when transactions change
   useEffect(() => {
@@ -64,6 +78,31 @@ export function TransactionsPage() {
     setSelectedTransaction(transaction);
     setDialogMode('edit');
     setDialogOpen(true);
+  };
+
+  const handleDeleteTransaction = (transaction: EnhancedTransaction) => {
+    setTransactionToDelete(transaction);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!transactionToDelete?.id) return;
+    
+    try {
+      await deleteTransaction(transactionToDelete.id);
+      toast({
+        title: "Success",
+        description: "Transaction deleted successfully",
+      });
+      setDeleteDialogOpen(false);
+      setTransactionToDelete(undefined);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete transaction",
+      });
+    }
   };
 
   const handleSaveTransaction = async (data: Partial<TransactionType>) => {
@@ -102,22 +141,6 @@ export function TransactionsPage() {
       }
     } catch (err) {
       console.error('Error in handleSaveTransaction:', err);
-      toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "An error occurred",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const handleDeleteTransaction = async (id: string) => {
-    try {
-      await deleteTransaction(id);
-      toast({
-        title: "Transaction deleted",
-        description: "Your transaction has been successfully deleted."
-      });
-    } catch (err) {
       toast({
         title: "Error",
         description: err instanceof Error ? err.message : "An error occurred",
@@ -241,6 +264,7 @@ export function TransactionsPage() {
         <TransactionsList
           transactions={transactions}
           onEditTransaction={handleEditTransaction}
+          onDeleteTransaction={handleDeleteTransaction}
           isLoading={loading}
           filterQuery={filters.searchQuery}
           pagination={{
@@ -257,10 +281,37 @@ export function TransactionsPage() {
         onOpenChange={setDialogOpen}
         transaction={selectedTransaction}
         onSave={handleSaveTransaction}
-        onDelete={handleDeleteTransaction}
         mode={dialogMode}
         bankOptions={allUserBanks}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this transaction? This action cannot be undone.
+              {transactionToDelete && (
+                <div className="mt-2 p-2 bg-muted rounded-md">
+                  <div className="text-sm font-medium">{transactionToDelete.description}</div>
+                  <div className="text-sm text-muted-foreground">
+                    Amount: {transactionToDelete.amount} {transactionToDelete.currency}
+                  </div>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
