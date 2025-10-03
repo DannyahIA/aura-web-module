@@ -22,8 +22,9 @@ import {
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings, Download, Upload } from 'lucide-react';
+import { Plus, Settings, Download, Upload, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 import { DEFAULT_WIDGETS, type Widget, type WidgetConfig } from '@/lib/dashboard-config';
 import { usePersistentDashboard } from '@/hooks/use-persistent-dashboard';
@@ -43,20 +44,24 @@ export function FluidDashboard({ className }: FluidDashboardProps) {
     widgets,
     layout,
     configs: widgetConfigs,
+    lastUpdated,
     updateWidgets,
     updateLayout,
     updateWidgetConfig,
     resetDashboard,
     exportDashboard,
     importDashboard,
+    saveDashboard,
   } = usePersistentDashboard(DEFAULT_WIDGETS);
 
   const { loading: dataLoading } = useRealFinancialData();
+  const { toast } = useToast();
   
   const [activeWidget, setActiveWidget] = useState<Widget | null>(null);
   const [showWidgetSelector, setShowWidgetSelector] = useState(false);
   const [dragOverPosition, setDragOverPosition] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Configure sensors for smooth dragging
   const sensors = useSensors(
@@ -100,11 +105,19 @@ export function FluidDashboard({ className }: FluidDashboardProps) {
     
     if (!over || active.id === over.id) return;
 
-    const oldIndex = widgets.findIndex(widget => widget.id === active.id);
-    const newIndex = widgets.findIndex(widget => widget.id === over.id);
+    // Calculate enabled widgets locally
+    const enabledWidgets = widgets.filter(w => w.enabled);
+    const oldIndex = enabledWidgets.findIndex(widget => widget.id === active.id);
+    const newIndex = enabledWidgets.findIndex(widget => widget.id === over.id);
 
     if (oldIndex !== -1 && newIndex !== -1) {
-      const newWidgets = arrayMove(widgets, oldIndex, newIndex);
+      // Reorder only the enabled widgets
+      const reorderedEnabled = arrayMove(enabledWidgets, oldIndex, newIndex);
+      
+      // Merge back with disabled widgets (keep them at the end)
+      const disabledWidgets = widgets.filter(w => !w.enabled);
+      const newWidgets = [...reorderedEnabled, ...disabledWidgets];
+      
       updateWidgets(newWidgets);
     }
   }, [widgets, updateWidgets]);
@@ -123,16 +136,21 @@ export function FluidDashboard({ className }: FluidDashboardProps) {
   }, [updateWidgetConfig]);
 
   const handleRemoveWidget = useCallback((widgetId: string) => {
-    const filteredWidgets = widgets.filter(w => w.id !== widgetId);
-    updateWidgets(filteredWidgets);
+    const updatedWidgets = widgets.map(widget =>
+      widget.id === widgetId 
+        ? { ...widget, enabled: false }
+        : widget
+    );
+    updateWidgets(updatedWidgets);
   }, [widgets, updateWidgets]);
 
   const handleToggleWidget = useCallback((widgetId: string) => {
-    const widget = DEFAULT_WIDGETS.find(w => w.id === widgetId);
-    if (widget) {
-      const newWidget = { ...widget, id: `${widgetId}-${Date.now()}` };
-      updateWidgets([...widgets, newWidget]);
-    }
+    const updatedWidgets = widgets.map(widget =>
+      widget.id === widgetId 
+        ? { ...widget, enabled: !widget.enabled }
+        : widget
+    );
+    updateWidgets(updatedWidgets);
   }, [widgets, updateWidgets]);
 
   const handleExport = useCallback(() => {
@@ -184,7 +202,37 @@ export function FluidDashboard({ className }: FluidDashboardProps) {
     width: '100%',
   }), [layout]);
 
-  const widgetIds = useMemo(() => widgets.map(w => w.id), [widgets]);
+  // Filter only enabled widgets for display
+  const enabledWidgets = useMemo(() => 
+    widgets.filter(w => w.enabled), 
+    [widgets]
+  );
+
+  const widgetIds = useMemo(() => 
+    enabledWidgets.map(w => w.id), 
+    [enabledWidgets]
+  );
+
+  // Handle edit mode toggle with save
+  const handleEditModeToggle = useCallback(() => {
+    if (editMode) {
+      // Exiting edit mode - save dashboard
+      setIsSaving(true);
+      const success = saveDashboard();
+      
+      setTimeout(() => {
+        setIsSaving(false);
+        if (success) {
+          toast({
+            title: "Dashboard Saved",
+            description: "Your changes have been saved successfully.",
+            duration: 2000,
+          });
+        }
+      }, 500);
+    }
+    setEditMode(!editMode);
+  }, [editMode, saveDashboard, toast]);
 
   if (dataLoading) {
     return (
@@ -210,8 +258,14 @@ export function FluidDashboard({ className }: FluidDashboardProps) {
           <p className="text-muted-foreground">
             {editMode ? "Drag, resize and configure your widgets" : "Customize your financial overview"}
           </p>
-          <div className="text-xs text-muted-foreground mt-1">
-            Grid: {layout.gridCols} cols × {layout.gridRows} rows | Widgets: {widgets.length}
+          <div className="text-xs text-muted-foreground mt-1 flex items-center gap-4">
+            <span>Grid: {layout.gridCols} cols × {layout.gridRows} rows | Widgets: {enabledWidgets.length}/{widgets.length}</span>
+            {lastUpdated && !editMode && (
+              <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                <Check className="w-3 h-3" />
+                Saved {new Date(lastUpdated).toLocaleTimeString()}
+              </span>
+            )}
           </div>
         </div>
         
@@ -219,11 +273,21 @@ export function FluidDashboard({ className }: FluidDashboardProps) {
           <Button
             variant={editMode ? "default" : "outline"}
             size="sm"
-            onClick={() => setEditMode(!editMode)}
-            className="gap-2"
+            onClick={handleEditModeToggle}
+            disabled={isSaving}
+            className="gap-2 min-w-[140px]"
           >
-            <Settings className="w-4 h-4" />
-            {editMode ? "Exit Edit Mode" : "Edit Dashboard"}
+            {isSaving ? (
+              <>
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                {editMode ? <Check className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
+                {editMode ? "Save & Exit" : "Edit Dashboard"}
+              </>
+            )}
           </Button>
           
           {editMode && (
@@ -294,7 +358,7 @@ export function FluidDashboard({ className }: FluidDashboardProps) {
             )}
             style={gridStyle}
           >
-            {widgets.map((widget) => (
+            {enabledWidgets.map((widget) => (
               <ResizableWidget
                 key={widget.id}
                 id={widget.id}
@@ -308,7 +372,7 @@ export function FluidDashboard({ className }: FluidDashboardProps) {
             ))}
             
             {/* Empty state */}
-            {widgets.length === 0 && (
+            {enabledWidgets.length === 0 && (
               <div className="col-span-full flex flex-col items-center justify-center py-12">
                 <div className="text-center">
                   <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
@@ -332,7 +396,7 @@ export function FluidDashboard({ className }: FluidDashboardProps) {
       <WidgetSelector
         open={showWidgetSelector}
         onOpenChange={setShowWidgetSelector}
-        widgets={DEFAULT_WIDGETS}
+        widgets={widgets}
         onToggleWidget={handleToggleWidget}
       />
     </div>

@@ -16,20 +16,32 @@ const STORAGE_KEY = 'aura-dashboard-state';
 
 // Merge default widgets with saved widgets
 const mergeWidgets = (defaultWidgets: Widget[], savedWidgets: Widget[]): Widget[] => {
+  const defaultMap = new Map(defaultWidgets.map(w => [w.id, w]));
   const savedMap = new Map(savedWidgets.map(w => [w.id, w]));
   
-  return defaultWidgets.map(defaultWidget => {
-    const saved = savedMap.get(defaultWidget.id);
-    if (saved) {
-      // Keep saved configuration but update available sizes from default
+  // Start with saved widgets in their saved order
+  const mergedWidgets = savedWidgets.map(savedWidget => {
+    const defaultWidget = defaultMap.get(savedWidget.id);
+    if (defaultWidget) {
+      // Update from default but keep saved configuration
       return {
-        ...saved,
+        ...savedWidget,
         availableSizes: defaultWidget.availableSizes,
         title: defaultWidget.title, // Keep updated titles
       };
     }
-    return defaultWidget;
+    // Widget exists in saved but not in defaults (removed widget)
+    return savedWidget;
   });
+  
+  // Add new widgets from defaults that don't exist in saved
+  defaultWidgets.forEach(defaultWidget => {
+    if (!savedMap.has(defaultWidget.id)) {
+      mergedWidgets.push(defaultWidget);
+    }
+  });
+  
+  return mergedWidgets;
 };
 
 export function usePersistentDashboard(defaultWidgets: Widget[]) {
@@ -143,6 +155,22 @@ export function usePersistentDashboard(defaultWidgets: Widget[]) {
     return dashboardState.configs[widgetId] || {};
   }, [dashboardState.configs]);
 
+  const saveDashboard = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          ...dashboardState,
+          lastUpdated: new Date().toISOString()
+        }));
+        return true;
+      } catch (error) {
+        console.error('Failed to save dashboard state:', error);
+        return false;
+      }
+    }
+    return false;
+  }, [dashboardState]);
+
   return {
     widgets: dashboardState.widgets,
     layout: dashboardState.layout,
@@ -155,5 +183,6 @@ export function usePersistentDashboard(defaultWidgets: Widget[]) {
     exportDashboard,
     importDashboard,
     getWidgetConfig,
+    saveDashboard,
   };
 }
